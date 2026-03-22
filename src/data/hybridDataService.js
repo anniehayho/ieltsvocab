@@ -2,6 +2,7 @@
 import * as firebaseService from '../firebase/firestoreService';
 import * as localStorageService from '../utils/storage';
 import { getCurrentUser } from '../firebase/authService';
+import { initializeVocabulary } from './vocabularyData';
 
 // Check if user is authenticated
 const isAuthenticated = () => {
@@ -46,7 +47,20 @@ export const getVocabulary = async () => {
     // Fallback to localStorage on error
     return localStorageService.loadVocabulary();
   } else {
-    return localStorageService.loadVocabulary();
+    // Load from localStorage, initialize if empty or outdated
+    let vocabulary = localStorageService.loadVocabulary();
+    console.log('hybridDataService - Loaded from storage:', vocabulary?.length, 'words');
+
+    // Check if vocabulary is empty or has old structure (less than 1000 words)
+    if (!vocabulary || vocabulary.length < 1000) {
+      console.log('🔄 Initializing vocabulary with new 1000-word database...');
+      vocabulary = initializeVocabulary();
+      console.log('✅ New vocabulary loaded:', vocabulary?.length, 'words');
+    } else {
+      console.log('✅ Using existing vocabulary:', vocabulary?.length, 'words');
+    }
+
+    return vocabulary;
   }
 };
 

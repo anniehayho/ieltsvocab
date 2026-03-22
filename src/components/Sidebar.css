@@ -49,15 +49,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 12px 16px;
   background: transparent;
   border: none;
+  border-radius: 36px;
   cursor: pointer;
   font-family: var(--font-heading);
   font-size: 14px;
   font-weight: normal;
   color: var(--text-secondary);
-  transition: all 0.2s;
+  transition: all 0.3s;
   text-align: left;
 }
 
@@ -66,8 +67,8 @@
 }
 
 .nav-item.active {
-  background: transparent;
-  color: var(--accent-red);
+  background: var(--accent-red);
+  color: white;
   font-weight: 500;
 }
 
@@ -76,17 +77,18 @@
   height: 6px;
   background: var(--accent-red);
   flex-shrink: 0;
+  display: none;
 }
 
 .nav-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   stroke: var(--text-secondary);
   flex-shrink: 0;
 }
 
 .nav-item.active .nav-icon {
-  stroke: var(--accent-red);
+  stroke: white;
 }
 
 .sidebar-footer {
