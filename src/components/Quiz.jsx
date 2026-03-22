@@ -75,7 +75,8 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
     }
 
     incrementReviewCount(currentWord.id);
-    refreshVocabulary();
+    // Don't refresh during quiz - only at the end
+    // refreshVocabulary();
 
     setAnswers([...answers, { isCorrect }]);
   };
@@ -96,7 +97,8 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
 
       saveQuizResult(score, totalQuestions, duration, wordsQuizzed);
       setQuizCompleted(true);
-      refreshVocabulary();
+      // Don't refresh here - it would restart the quiz via useEffect
+      // refreshVocabulary();
     }
   };
 
@@ -121,20 +123,13 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
 
   const handleRestartQuiz = () => {
     setQuizCompleted(false);
-    setCurrentQuestion(0);
-    setSelectedAnswer(null);
-    setScore(0);
-    setAnswers([]);
-    setTimer(0);
-    startTimeRef.current = Date.now();
 
-    // Restart timer
-    timerIntervalRef.current = setInterval(() => {
-      setTimer(prev => prev + 1);
-    }, 1000);
-
-    // Generate new quiz
-    startNewQuiz();
+    // Refresh vocabulary to get updated word statuses
+    // This will trigger useEffect which will:
+    // - Clear old timer
+    // - Start new quiz
+    // - Start new timer
+    refreshVocabulary();
   };
 
   if (quizCompleted) {
@@ -220,13 +215,48 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
           })}
         </div>
 
+        {hasAnswered && (
+          <div className={`answer-feedback ${selectedAnswer === currentWord.correctAnswer ? 'correct' : 'incorrect'}`}>
+            {selectedAnswer === currentWord.correctAnswer ? (
+              <>
+                <svg className="feedback-icon" viewBox="0 0 24 24">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <div className="feedback-text">
+                  <strong>Correct!</strong>
+                  <span>Great job! You got it right.</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <svg className="feedback-icon" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+                <div className="feedback-text">
+                  <strong>Incorrect</strong>
+                  <span>The correct answer is: {currentWord.correctAnswer}</span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         <div className="quiz-bottom">
-          {hasAnswered && currentQuestion < quizWords.length - 1 && (
+          {hasAnswered && (
             <button className="next-question-btn" onClick={handleNext}>
-              <span>Next Question</span>
+              <span>{currentQuestion < quizWords.length - 1 ? 'Next Question' : 'Finish Quiz'}</span>
               <svg className="icon-sm" viewBox="0 0 24 24">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
+                {currentQuestion < quizWords.length - 1 ? (
+                  <>
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </>
+                ) : (
+                  <polyline points="20 6 9 17 4 12" />
+                )}
               </svg>
             </button>
           )}
