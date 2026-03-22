@@ -1,43 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Progress.css';
+import {
+  getVocabularyStats,
+  getWeeklyActivity,
+  getRecentlyStudiedWords,
+  calculateQuizAccuracy,
+  getTotalStudyTime,
+  getAverageStudyTime,
+  getWordsLearnedThisWeek,
+  calculateImprovement
+} from '../utils/statistics';
+import { loadUserStats } from '../utils/storage';
 
 const Progress = ({ vocabulary }) => {
   const [timeFilter, setTimeFilter] = useState('week');
+  const [stats, setStats] = useState({
+    mastered: 0,
+    learning: 0,
+    struggling: 0,
+    notStarted: 0,
+    total: 0
+  });
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [userStats, setUserStats] = useState(null);
+  const [quizAccuracy, setQuizAccuracy] = useState(0);
+  const [studyTime, setStudyTime] = useState('0.0');
+  const [avgStudyTime, setAvgStudyTime] = useState(0);
+  const [wordsLearned, setWordsLearned] = useState(0);
+  const [improvement, setImprovement] = useState(0);
 
-  const getStatsByStatus = () => {
-    const mastered = vocabulary.filter(w => w.status === 'mastered').length;
-    const learning = vocabulary.filter(w => w.status === 'learning').length;
-    const struggling = vocabulary.filter(w => w.status === 'struggling').length;
-    const notStarted = vocabulary.length - mastered - learning - struggling;
+  useEffect(() => {
+    // Load all statistics
+    const vocabStats = getVocabularyStats();
+    setStats(vocabStats);
 
-    return { mastered, learning, struggling, notStarted };
-  };
+    const weekActivity = getWeeklyActivity();
+    setWeeklyData(weekActivity);
 
-  const getTotalReviews = () => {
-    return vocabulary.reduce((sum, word) => sum + word.reviewCount, 0);
+    const uStats = loadUserStats();
+    setUserStats(uStats);
+
+    // Update stats based on timeFilter
+    updateStatsForTimeframe(timeFilter);
+  }, [vocabulary, timeFilter]);
+
+  const updateStatsForTimeframe = (timeframe) => {
+    setQuizAccuracy(calculateQuizAccuracy(timeframe));
+    setStudyTime(getTotalStudyTime(timeframe));
+    setAvgStudyTime(getAverageStudyTime(timeframe));
+    setImprovement(calculateImprovement(timeframe));
+
+    if (timeframe === 'week') {
+      setWordsLearned(getWordsLearnedThisWeek());
+    } else {
+      // For month/all, use total from vocab stats
+      setWordsLearned(stats.mastered);
+    }
   };
 
   const getRecentWords = () => {
-    return [...vocabulary]
-      .sort((a, b) => new Date(b.lastReviewed) - new Date(a.lastReviewed))
-      .slice(0, 4);
+    return getRecentlyStudiedWords(4);
   };
 
-  const stats = getStatsByStatus();
-  const totalWords = vocabulary.length;
-
-  // Mock weekly data (in real app, calculate from actual study sessions)
-  const weeklyData = [
-    { day: 'Mon', value: 60 },
-    { day: 'Tue', value: 120 },
-    { day: 'Wed', value: 90 },
-    { day: 'Thu', value: 150 },
-    { day: 'Fri', value: 100 },
-    { day: 'Sat', value: 180 },
-    { day: 'Sun', value: 0 } // Today - not completed
-  ];
-
-  const maxValue = Math.max(...weeklyData.map(d => d.value));
+  const totalWords = stats.total;
+  const maxValue = Math.max(...weeklyData.map(d => d.value), 1);
 
   return (
     <div className="progress">
@@ -71,26 +97,30 @@ const Progress = ({ vocabulary }) => {
       <div className="stats-grid">
         <div className="stat-card card">
           <span className="stat-label">Words Learned</span>
-          <span className="stat-value">{stats.mastered}</span>
-          <span className="stat-change positive">+32 this week</span>
+          <span className="stat-value">{wordsLearned}</span>
+          <span className="stat-change positive">
+            {timeFilter === 'week' ? 'this week' : timeFilter === 'month' ? 'this month' : 'all time'}
+          </span>
         </div>
 
         <div className="stat-card card">
           <span className="stat-label">Quiz Accuracy</span>
-          <span className="stat-value">87%</span>
-          <span className="stat-change positive">+5% improvement</span>
+          <span className="stat-value">{quizAccuracy}%</span>
+          <span className="stat-change positive">
+            {improvement > 0 ? `+${improvement}%` : improvement < 0 ? `${improvement}%` : 'No change'} improvement
+          </span>
         </div>
 
         <div className="stat-card card">
           <span className="stat-label">Study Streak</span>
-          <span className="stat-value red">14</span>
+          <span className="stat-value red">{userStats?.currentStreak || 0}</span>
           <span className="stat-change muted">days in a row</span>
         </div>
 
         <div className="stat-card card">
           <span className="stat-label">Time Studied</span>
-          <span className="stat-value">6.2h</span>
-          <span className="stat-change muted">avg 53min/day</span>
+          <span className="stat-value">{studyTime}h</span>
+          <span className="stat-change muted">avg {avgStudyTime}min/day</span>
         </div>
       </div>
 

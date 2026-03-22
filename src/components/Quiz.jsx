@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './Quiz.css';
-import { incrementReviewCount, updateWordStatus } from '../data/vocabularyData';
+import { incrementReviewCount, updateWordStatus, saveQuizResult } from '../data/vocabularyData';
 
 const Quiz = ({ vocabulary, refreshVocabulary }) => {
   const [quizWords, setQuizWords] = useState([]);
@@ -9,14 +9,23 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [timer, setTimer] = useState(0);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const startTimeRef = useRef(Date.now());
+  const timerIntervalRef = useRef(null);
 
   useEffect(() => {
     startNewQuiz();
     // Start timer
-    const interval = setInterval(() => {
+    startTimeRef.current = Date.now();
+    timerIntervalRef.current = setInterval(() => {
       setTimer(prev => prev + 1);
     }, 1000);
-    return () => clearInterval(interval);
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
   }, [vocabulary]);
 
   const startNewQuiz = () => {
@@ -75,6 +84,19 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
     if (currentQuestion < quizWords.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
+    } else {
+      // Quiz completed
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+
+      const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const wordsQuizzed = quizWords.map(w => w.id);
+      const totalQuestions = quizWords.length;
+
+      saveQuizResult(score, totalQuestions, duration, wordsQuizzed);
+      setQuizCompleted(true);
+      refreshVocabulary();
     }
   };
 
@@ -96,6 +118,52 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
 
   const currentWord = quizWords[currentQuestion];
   const hasAnswered = selectedAnswer !== null;
+
+  const handleRestartQuiz = () => {
+    setQuizCompleted(false);
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setScore(0);
+    setAnswers([]);
+    setTimer(0);
+    startTimeRef.current = Date.now();
+
+    // Restart timer
+    timerIntervalRef.current = setInterval(() => {
+      setTimer(prev => prev + 1);
+    }, 1000);
+
+    // Generate new quiz
+    startNewQuiz();
+  };
+
+  if (quizCompleted) {
+    const accuracy = Math.round((score / quizWords.length) * 100);
+    return (
+      <div className="quiz">
+        <div className="quiz-results card">
+          <h1>Quiz Complete!</h1>
+          <div className="results-stats">
+            <div className="result-stat">
+              <span className="result-label">Score</span>
+              <span className="result-value">{score}/{quizWords.length}</span>
+            </div>
+            <div className="result-stat">
+              <span className="result-label">Accuracy</span>
+              <span className="result-value">{accuracy}%</span>
+            </div>
+            <div className="result-stat">
+              <span className="result-label">Time</span>
+              <span className="result-value">{formatTime(timer)}</span>
+            </div>
+          </div>
+          <button className="next-question-btn" onClick={handleRestartQuiz}>
+            Take Another Quiz
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="quiz">

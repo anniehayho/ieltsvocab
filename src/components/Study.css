@@ -82,13 +82,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
   text-align: center;
 }
 
 .word-label {
   font-family: var(--font-heading);
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 600;
   letter-spacing: -1px;
   color: var(--text-primary);
@@ -97,14 +97,13 @@
 
 .phonetic {
   font-family: var(--font-body);
-  font-size: 16px;
-  color: var(--text-muted);
+  font-size: 14px;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .part-of-speech-badge {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: var(--accent-red);
   padding: 4px 10px;
 }
 
@@ -112,7 +111,7 @@
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: white;
   text-transform: lowercase;
 }
 
@@ -126,7 +125,7 @@
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   max-width: 440px;
   margin: 0;
 }
@@ -136,7 +135,7 @@
   font-size: 14px;
   font-style: italic;
   line-height: 1.5;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   max-width: 440px;
   margin: 0;
 }

@@ -3,7 +3,9 @@
   display: flex;
   flex-direction: column;
   gap: 48px;
-  max-width: 1200px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .home-header {
@@ -27,6 +29,7 @@
 }
 
 .subgreeting {
+  font-family: var(--font-body);
   font-size: 14px;
   color: var(--text-secondary);
 }
@@ -34,15 +37,18 @@
 .streak-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 10px 20px;
   border: 1px solid var(--border);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent-red);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-.streak-badge svg {
+.streak-badge .icon {
+  width: 18px;
+  height: 18px;
   stroke: none;
   fill: var(--accent-red);
 }
@@ -50,7 +56,15 @@
 .word-of-day {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+  padding: 32px;
+  border: 1px solid var(--border);
+}
+
+.card {
+  background: var(--bg-primary);
 }
 
 .wotd-header {
@@ -63,14 +77,30 @@
   font-family: var(--font-heading);
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-primary);
+}
+
+.wotd-date {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.word-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .band-badge {
   padding: 6px 12px;
   background: var(--bg-surface);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .wotd-content {
@@ -89,7 +119,18 @@
   font-family: var(--font-heading);
   font-size: 32px;
   font-weight: 600;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  margin-bottom: 8px;
+}
+
+.word-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .pronunciation {
@@ -100,22 +141,28 @@
 
 .part-of-speech {
   font-size: 13px;
-  color: var(--text-muted);
-  font-style: italic;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-style: normal;
 }
 
 .definition {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .example {
   font-size: 14px;
   color: var(--text-secondary);
   font-style: italic;
-  padding-left: 16px;
-  border-left: 2px solid var(--border);
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .quick-actions {
@@ -125,26 +172,59 @@
 
 .action-card {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
+  padding: 28px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, border-color 0.2s;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
 }
 
 .action-card:hover {
   transform: translateY(-2px);
+  border-color: var(--text-muted);
+}
+
+.action-card:active {
+  transform: translateY(0);
+}
+
+.action-card .icon {
+  width: 28px;
+  height: 28px;
+  stroke: var(--accent-red);
+  fill: none;
+  stroke-width: 2;
+}
+
+.action-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
 }
 
 .action-card h3 {
   font-family: var(--font-heading);
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .action-card p {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
+}
+
+.action-card .arrow-icon {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-primary);
+  fill: none;
+  stroke-width: 2;
 }
 
 .recent-activity {
@@ -163,74 +243,223 @@
   display: flex;
   flex-direction: column;
   padding: 0;
+  border: 1px solid var(--border);
 }
 
 .activity-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 28px;
-  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
 }
 
-.activity-item:last-child {
-  border-bottom: none;
+.activity-divider {
+  height: 1px;
+  background: var(--border);
+  width: 100%;
 }
 
 .activity-word {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
+  flex: 1;
+}
+
+.activity-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.activity-indicator.mastered {
+  background: #10B981;
+}
+
+.activity-indicator.learning {
+  background: #3B82F6;
+}
+
+.activity-indicator.struggling {
+  background: #F59E0B;
+}
+
+.activity-word-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
 }
 
 .word-name {
-  font-weight: 600;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-primary);
 }
 
-.status-badge {
-  padding: 4px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: capitalize;
-  border-radius: 2px;
+.word-definition {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
 
-.status-badge.mastered {
-  background: #22C55E20;
-  color: #16A34A;
-}
-
-.status-badge.learning {
-  background: #3B82F620;
-  color: #2563EB;
-}
-
-.status-badge.struggling {
-  background: #EF444420;
-  color: #DC2626;
-}
-
-.review-count {
+.time-ago {
+  font-family: var(--font-body);
   font-size: 13px;
   color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Large desktop screens */
+@media (min-width: 1600px) {
+  .home {
+    max-width: 1600px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .quick-actions {
+    gap: 16px;
+  }
+
+  .action-card {
+    padding: 24px;
+  }
 }
 
 @media (max-width: 768px) {
   .home {
     padding: 24px 20px;
-    gap: 24px;
+    gap: 32px;
+  }
+
+  .home-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   .greeting {
     font-size: 28px;
   }
 
+  .streak-badge {
+    align-self: flex-start;
+  }
+
   .quick-actions {
     flex-direction: column;
+    gap: 16px;
+  }
+
+  .action-card {
+    padding: 24px;
+  }
+
+  .action-card h3 {
+    font-size: 16px;
+  }
+
+  .action-card p {
+    font-size: 12px;
+  }
+
+  .word-of-day {
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .wotd-header h2 {
+    font-size: 16px;
   }
 
   .word-title h3 {
+    font-size: 26px;
+  }
+
+  .word-meta {
+    gap: 8px;
+  }
+
+  .word-title-row {
+    flex-wrap: wrap;
+  }
+
+  .activity-list {
+    padding: 0;
+  }
+
+  .recent-activity h2 {
+    font-size: 16px;
+  }
+
+  .activity-item {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .activity-word {
+    width: 100%;
+  }
+
+  .time-ago {
+    align-self: flex-end;
+    font-size: 12px;
+  }
+
+  .word-definition {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home {
+    padding: 20px 16px;
+    gap: 28px;
+  }
+
+  .greeting {
     font-size: 24px;
+  }
+
+  .action-card {
+    padding: 20px;
+  }
+
+  .action-card .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .word-of-day {
+    padding: 20px;
+  }
+
+  .word-title h3 {
+    font-size: 22px;
+  }
+
+  .word-meta {
+    gap: 6px;
+  }
+
+  .part-of-speech {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .activity-item {
+    padding: 16px;
+  }
+
+  .activity-list {
+    padding: 0;
   }
 }

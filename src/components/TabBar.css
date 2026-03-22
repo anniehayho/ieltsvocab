@@ -58,3 +58,14 @@
 .tab.active .tab-label {
   color: white;
 }
+
+/* Mobile only - hide on desktop */
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none;
+  }
+}

@@ -1,19 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './Study.css';
-import { updateWordStatus, incrementReviewCount } from '../data/vocabularyData';
+import { updateWordStatus, incrementReviewCount, saveStudySession } from '../data/vocabularyData';
 
 const Study = ({ vocabulary, refreshVocabulary }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [studyWords, setStudyWords] = useState([]);
   const [studied, setStudied] = useState(0);
+  const startTimeRef = useRef(Date.now());
+  const studiedWordsRef = useRef(new Set());
 
   useEffect(() => {
-    // Get all words for study session
-    const wordsToStudy = [...vocabulary].slice(0, 40);
-    setStudyWords(wordsToStudy);
-    setStudied(0);
-    setCurrentIndex(0);
-  }, [vocabulary]);
+    // Initialize study session ONLY on mount
+    if (vocabulary.length > 0 && studyWords.length === 0) {
+      const wordsToStudy = [...vocabulary].slice(0, 40);
+      setStudyWords(wordsToStudy);
+      setStudied(0);
+      setCurrentIndex(0);
+      startTimeRef.current = Date.now();
+      studiedWordsRef.current = new Set();
+    }
+  }, [vocabulary, studyWords.length]);
+
+  useEffect(() => {
+    // Save study session when component unmounts
+    return () => {
+      const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const wordsStudied = studiedWordsRef.current.size;
+      if (wordsStudied > 0 && duration > 0) {
+        saveStudySession(wordsStudied, duration);
+      }
+    };
+  }, []);
 
   const currentWord = studyWords[currentIndex];
   const totalWords = studyWords.length;
@@ -31,11 +48,7 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
   const handleNext = () => {
     if (currentIndex < totalWords - 1) {
       setCurrentIndex(currentIndex + 1);
-      setStudied(Math.max(studied, currentIndex + 1));
-      if (currentWord) {
-        incrementReviewCount(currentWord.id);
-        refreshVocabulary();
-      }
+      setStudied(Math.max(studied, currentIndex + 2));
     }
   };
 
@@ -43,33 +56,43 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
     if (currentWord) {
       updateWordStatus(currentWord.id, 'mastered');
       incrementReviewCount(currentWord.id);
-      refreshVocabulary();
+      studiedWordsRef.current.add(currentWord.id);
     }
-    handleNext();
+    // Move to next word
+    if (currentIndex < totalWords - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setStudied(Math.max(studied, currentIndex + 2));
+    }
   };
 
   const handleStudyAgain = () => {
     if (currentWord) {
       updateWordStatus(currentWord.id, 'learning');
       incrementReviewCount(currentWord.id);
-      refreshVocabulary();
+      studiedWordsRef.current.add(currentWord.id);
     }
-    handleNext();
+    // Move to next word
+    if (currentIndex < totalWords - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setStudied(Math.max(studied, currentIndex + 2));
+    }
   };
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if (e.key === 'ArrowLeft') {
-        handlePrevious();
-      } else if (e.key === 'ArrowRight') {
-        handleNext();
+      if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        setCurrentIndex(prev => prev - 1);
+        setStudied(prev => Math.max(0, prev - 1));
+      } else if (e.key === 'ArrowRight' && currentIndex < totalWords - 1) {
+        setCurrentIndex(prev => prev + 1);
+        setStudied(prev => Math.max(prev, currentIndex + 2));
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [currentIndex, studied]);
+  }, [currentIndex, totalWords]);
 
   if (!currentWord) {
     return (

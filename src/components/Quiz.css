@@ -85,7 +85,7 @@
 
 .question-number {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -94,16 +94,16 @@
 
 .question-text {
   font-family: var(--font-heading);
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 600;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
   margin: 0;
 }
 
 .question-context {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   font-style: italic;
   line-height: 1.5;
   color: var(--text-secondary);
@@ -115,14 +115,14 @@
   width: 640px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .quiz-option {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
+  gap: 10px;
+  padding: 14px 16px;
   background: var(--bg-primary);
   border: 1px solid var(--border);
   cursor: pointer;
@@ -199,16 +199,18 @@
 .next-question-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 12px 32px;
+  padding: 14px 0;
   background: var(--accent-red);
   color: white;
   border: none;
   cursor: pointer;
   font-family: var(--font-heading);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   transition: opacity 0.2s;
+  width: 640px;
 }
 
 .next-question-btn:hover {
@@ -222,12 +224,12 @@
 .progress-dots {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
 
@@ -249,6 +251,53 @@
   justify-content: center;
   min-height: 400px;
   color: var(--text-muted);
+}
+
+.quiz-results {
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 48px;
+  text-align: center;
+}
+
+.quiz-results h1 {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  color: var(--text-primary);
+}
+
+.results-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.result-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  min-width: 120px;
+}
+
+.result-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.result-value {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--accent-green);
 }
 
 @media (max-width: 768px) {

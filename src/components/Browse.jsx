@@ -5,6 +5,10 @@ const Browse = ({ vocabulary }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedAlbum, setSelectedAlbum] = useState(null);
+  const [wordSearchTerm, setWordSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const wordsPerPage = 8;
 
   const filters = [
     { id: 'all', label: 'All' },
@@ -18,49 +22,67 @@ const Browse = ({ vocabulary }) => {
     { id: 'struggling', label: 'Struggling' }
   ];
 
-  // Album/Category data
+  // Calculate real album data from vocabulary
+  const getAlbumData = (category = null, bandLevel = null) => {
+    let words = vocabulary;
+
+    if (category) {
+      words = vocabulary.filter(w => w.category === category);
+    } else if (bandLevel) {
+      words = vocabulary.filter(w => w.bandLevel === bandLevel);
+    }
+
+    const totalWords = words.length;
+    const masteredWords = words.filter(w => w.status === 'mastered').length;
+    const learnedPercentage = totalWords > 0 ? Math.round((masteredWords / totalWords) * 100) : 0;
+
+    return { totalWords, learnedPercentage };
+  };
+
+  const academicData = getAlbumData('Academic');
+  const generalData = getAlbumData('General');
+  const band56Data = getAlbumData(null, '5-6');
+  const band78Data = getAlbumData(null, '7-8');
+
+  // Album/Category data with real statistics
   const albums = [
     {
       id: 1,
       title: 'Academic Words',
-      totalWords: 320,
+      totalWords: academicData.totalWords,
       category: 'Academic',
-      learnedPercentage: 45
+      learnedPercentage: academicData.learnedPercentage
     },
     {
       id: 2,
       title: 'General Training',
-      totalWords: 280,
+      totalWords: generalData.totalWords,
       category: 'General',
-      learnedPercentage: 62
+      learnedPercentage: generalData.learnedPercentage
     },
     {
       id: 3,
       title: 'Band 5-6 Essentials',
-      totalWords: 450,
+      totalWords: band56Data.totalWords,
       bandLevel: '5-6',
-      learnedPercentage: 78
+      learnedPercentage: band56Data.learnedPercentage
     },
     {
       id: 4,
       title: 'Band 7-8 Advanced',
-      totalWords: 380,
+      totalWords: band78Data.totalWords,
       bandLevel: '7-8',
-      learnedPercentage: 35
+      learnedPercentage: band78Data.learnedPercentage
     },
     {
       id: 5,
-      title: 'Band 9 Expert',
-      totalWords: 220,
-      bandLevel: '9',
-      learnedPercentage: 18
-    },
-    {
-      id: 6,
-      title: 'Speaking & Writing',
-      totalWords: 190,
-      category: 'General',
-      learnedPercentage: 55
+      title: 'All Words',
+      totalWords: vocabulary.length,
+      category: null,
+      bandLevel: null,
+      learnedPercentage: vocabulary.length > 0
+        ? Math.round((vocabulary.filter(w => w.status === 'mastered').length / vocabulary.length) * 100)
+        : 0
     }
   ];
 
@@ -84,51 +106,79 @@ const Browse = ({ vocabulary }) => {
 
   const handleAlbumClick = (album) => {
     setSelectedAlbum(album);
+    setCurrentPage(1);
+    setWordSearchTerm('');
+    setStatusFilter('all');
   };
 
   const handleBackToAlbums = () => {
     setSelectedAlbum(null);
+    setCurrentPage(1);
   };
 
   // Get words for selected album
   const getAlbumWords = (album) => {
     if (!album) return [];
 
-    let filtered = vocabulary;
-
     if (album.category) {
-      filtered = vocabulary.filter(w => w.category === album.category);
+      return vocabulary.filter(w => w.category === album.category);
     } else if (album.bandLevel) {
-      filtered = vocabulary.filter(w => w.bandLevel === album.bandLevel);
+      return vocabulary.filter(w => w.bandLevel === album.bandLevel);
     }
 
-    return filtered;
+    // "All Words" album
+    return vocabulary;
   };
 
   const albumWords = selectedAlbum ? getAlbumWords(selectedAlbum) : [];
-  const [wordSearchTerm, setWordSearchTerm] = useState('');
 
   const filteredWords = albumWords.filter(word =>
     word.word.toLowerCase().includes(wordSearchTerm.toLowerCase()) ||
     word.definition.toLowerCase().includes(wordSearchTerm.toLowerCase())
   );
 
-  // If an album is selected, show the word list
+  const statusFilters = [
+    { id: 'all', label: 'All' },
+    { id: 'mastered', label: 'Mastered' },
+    { id: 'learning', label: 'Learning' },
+    { id: 'not-started', label: 'Not Started' }
+  ];
+
+  const filteredByStatus = statusFilter === 'all'
+    ? filteredWords
+    : statusFilter === 'not-started'
+    ? filteredWords.filter(w => !w.status || w.status === 'struggling')
+    : filteredWords.filter(w => w.status === statusFilter);
+
+  // If an album is selected, show the word list as table
   if (selectedAlbum) {
+    const learnedPercentage = selectedAlbum.learnedPercentage;
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredByStatus.length / wordsPerPage);
+    const startIndex = (currentPage - 1) * wordsPerPage;
+    const endIndex = startIndex + wordsPerPage;
+    const currentWords = filteredByStatus.slice(startIndex, endIndex);
+
+    const handlePageChange = (page) => {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
       <div className="browse">
         <div className="browse-header">
-          <div className="header-title">
-            <div className="title-with-back">
-              <button className="back-button" onClick={handleBackToAlbums}>
-                <svg className="icon icon-sm" viewBox="0 0 24 24">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-                Back
-              </button>
-              <h1>{selectedAlbum.title}</h1>
-            </div>
+          <div className="album-header-row">
+            <svg className="back-icon" viewBox="0 0 24 24" onClick={handleBackToAlbums} style={{cursor: 'pointer'}}>
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <h1 className="album-title">{selectedAlbum.title}</h1>
             <span className="word-count">{albumWords.length} words</span>
+            <div style={{flex: 1}}></div>
+            <div className="learned-badge">
+              <span>{learnedPercentage}% learned</span>
+            </div>
           </div>
 
           <div className="search-bar">
@@ -138,45 +188,98 @@ const Browse = ({ vocabulary }) => {
             </svg>
             <input
               type="text"
-              placeholder="Search words in this collection..."
+              placeholder="Search words in this album..."
               value={wordSearchTerm}
               onChange={(e) => setWordSearchTerm(e.target.value)}
               className="search-input"
             />
           </div>
+
+          <div className="filter-row">
+            {statusFilters.map(filter => (
+              <button
+                key={filter.id}
+                className={`chip ${statusFilter === filter.id ? 'active' : ''}`}
+                onClick={() => setStatusFilter(filter.id)}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="word-list">
-          {filteredWords.map(word => (
-            <div key={word.id} className="word-list-item card">
-              <div className="word-header">
-                <div className="word-main">
-                  <h3 className="word-title">{word.word}</h3>
-                  <span className="word-pronunciation">{word.pronunciation}</span>
-                </div>
-                <span className={`status-badge ${word.status}`}>
-                  {word.status}
+        <div className="word-table">
+          <div className="table-header">
+            <div className="th-word">Word</div>
+            <div className="th-type">Type</div>
+            <div className="th-definition">Definition</div>
+            <div className="th-status">Status</div>
+            <div className="th-accuracy">Accuracy</div>
+          </div>
+          {currentWords.map((word, index) => (
+            <div key={word.id} className={`table-row ${index % 2 === 1 ? 'alt' : ''}`}>
+              <div className="td-word">{word.word}</div>
+              <div className="td-type">{word.partOfSpeech.slice(0, 4)}</div>
+              <div className="td-definition">{word.definition}</div>
+              <div className="td-status">
+                <span className={`status-label ${word.status}`}>
+                  {word.status === 'mastered' ? 'Mastered' : word.status === 'learning' ? 'Learning' : 'Not Started'}
                 </span>
               </div>
-              <p className="word-pos">{word.partOfSpeech}</p>
-              <p className="word-definition">{word.definition}</p>
-              <p className="word-example">"{word.example}"</p>
-              <div className="word-meta">
-                <span className="category-badge">{word.category}</span>
-                <span className="band-badge">{word.bandLevel}</span>
-                {word.synonyms && word.synonyms.length > 0 && (
-                  <span className="synonyms-badge">
-                    Synonyms: {word.synonyms.join(', ')}
-                  </span>
-                )}
+              <div className="td-accuracy">
+                {word.status === 'mastered' ? '95%' : word.status === 'learning' ? '72%' : '0%'}
               </div>
             </div>
           ))}
         </div>
 
-        {filteredWords.length === 0 && (
+        {filteredByStatus.length === 0 && (
           <div className="empty-state">
             <p>No words found matching your search.</p>
+          </div>
+        )}
+
+        {filteredByStatus.length > 0 && totalPages > 1 && (
+          <div className="pagination">
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <svg className="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              <span>Previous</span>
+            </button>
+
+            <div className="pagination-numbers">
+              {currentPage > 1 && (
+                <button className="page-number" onClick={() => handlePageChange(1)}>
+                  1
+                </button>
+              )}
+              {currentPage > 2 && totalPages > 3 && <span className="pagination-dots">...</span>}
+
+              <button className="page-number active">{currentPage}</button>
+
+              {currentPage < totalPages - 1 && totalPages > 3 && <span className="pagination-dots">...</span>}
+              {currentPage < totalPages && (
+                <button className="page-number" onClick={() => handlePageChange(totalPages)}>
+                  {totalPages}
+                </button>
+              )}
+            </div>
+
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <span>Next</span>
+              <svg className="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
           </div>
         )}
       </div>

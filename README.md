@@ -4,13 +4,14 @@ A Progressive Web App (PWA) for learning IELTS vocabulary with flashcards, quizz
 
 ## Features
 
-- **Browse Vocabulary**: Explore 2,450+ IELTS words with filtering by category, band level, and mastery status
+- **Browse Vocabulary**: Explore 60 essential IELTS words (Band 5-8) with filtering by category, band level, and mastery status
 - **Flashcard Study**: Review words with an interactive flashcard interface
 - **Quiz Practice**: Test your knowledge with multiple-choice quizzes
-- **Progress Tracking**: Monitor your learning progress with detailed statistics
+- **Progress Tracking**: Monitor your learning progress with detailed statistics, study time, and streaks
 - **Offline Support**: Full PWA capabilities - works offline after first load
 - **Responsive Design**: Optimized for both desktop and mobile devices
-- **Local Storage**: All progress is saved locally in your browser
+- **Local Storage**: All progress, stats, and quiz results saved locally in your browser
+- **Real-time Statistics**: Track daily progress, weekly activity, quiz accuracy, and study sessions
 
 ## Tech Stack
 
@@ -102,7 +103,14 @@ ielts/
 │   │   ├── Quiz.jsx       # Quiz practice
 │   │   └── Progress.jsx   # Progress tracking
 │   ├── data/
-│   │   └── vocabularyData.js  # Vocabulary data and localStorage functions
+│   │   ├── ieltsVocabulary.js # 60 IELTS words database
+│   │   └── vocabularyData.js  # Vocabulary management functions
+│   ├── utils/
+│   │   ├── storage.js     # localStorage utilities
+│   │   ├── statistics.js  # Statistical calculations
+│   │   └── apiHelper.js   # API integration helpers
+│   ├── services/
+│   │   └── vocabularyAPI.js   # External API service
 │   ├── App.jsx            # Main app component
 │   ├── App.css            # App styles
 │   ├── index.css          # Global styles
@@ -131,7 +139,7 @@ Each vocabulary word contains:
 
 ### Adding Your Own Vocabulary
 
-Edit `/src/data/vocabularyData.js` and add your words to the `vocabularyData` array:
+Edit `/src/data/ieltsVocabulary.js` and add your words to the `ieltsVocabularyDatabase` array:
 
 ```javascript
 {

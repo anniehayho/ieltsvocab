@@ -1,14 +1,29 @@
 import { useState, useEffect } from 'react';
 import './Home.css';
+import {
+  getWordOfTheDay,
+  getWordsLearnedThisWeek,
+  calculateQuizAccuracy
+} from '../utils/statistics';
 
-const Home = ({ vocabulary, streak }) => {
+const Home = ({ vocabulary, userStats, onNavigate }) => {
   const [wordOfTheDay, setWordOfTheDay] = useState(null);
+  const [stats, setStats] = useState({
+    wordsThisWeek: 0,
+    quizAccuracy: 0
+  });
 
   useEffect(() => {
     if (vocabulary.length > 0) {
-      // Select a random word as word of the day
-      const randomIndex = Math.floor(Math.random() * vocabulary.length);
-      setWordOfTheDay(vocabulary[randomIndex]);
+      // Get deterministic word of the day
+      const wotd = getWordOfTheDay();
+      setWordOfTheDay(wotd);
+
+      // Get stats
+      setStats({
+        wordsThisWeek: getWordsLearnedThisWeek(),
+        quizAccuracy: calculateQuizAccuracy('week')
+      });
     }
   }, [vocabulary]);
 
@@ -18,22 +33,52 @@ const Home = ({ vocabulary, streak }) => {
 
   const getRecentActivity = () => {
     return vocabulary
+      .filter(word => word.lastReviewed)
       .sort((a, b) => new Date(b.lastReviewed) - new Date(a.lastReviewed))
-      .slice(0, 3);
+      .slice(0, 3)
+      .map(word => {
+        const reviewedDate = new Date(word.lastReviewed);
+        const now = new Date();
+        const diffMs = now - reviewedDate;
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        let timeAgo;
+        if (diffDays > 1) {
+          if (diffDays === 1) timeAgo = 'Yesterday';
+          else if (diffDays < 7) timeAgo = `${diffDays} days ago`;
+          else timeAgo = `${Math.floor(diffDays / 7)} weeks ago`;
+        } else if (diffHours > 0) {
+          timeAgo = `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+        } else {
+          const diffMins = Math.floor(diffMs / (1000 * 60));
+          timeAgo = diffMins < 1 ? 'Just now' : `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
+        }
+
+        return { ...word, timeAgo };
+      });
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
   };
 
   return (
     <div className="home">
       <div className="home-header">
         <div className="header-left">
-          <h1 className="greeting">Welcome back!</h1>
-          <p className="subgreeting">Ready to expand your vocabulary?</p>
+          <h1 className="greeting">{getGreeting()}, learner</h1>
+          <p className="subgreeting">Keep up your learning streak!</p>
         </div>
         <div className="streak-badge">
-          <svg className="icon icon-sm" viewBox="0 0 24 24">
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" />
+          <svg className="icon" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C12 2 7 6 7 11C7 13.7614 9.23858 16 12 16C14.7614 16 17 13.7614 17 11C17 6 12 2 12 2Z" fill="#EF4444"/>
+            <path d="M12 16C12 16 9 18 9 20.5C9 21.8807 10.1193 23 11.5 23H12.5C13.8807 23 15 21.8807 15 20.5C15 18 12 16 12 16Z" fill="#F97316"/>
           </svg>
-          <span>{streak} day streak</span>
+          <span>{userStats?.currentStreak || 0} Day Streak</span>
         </div>
       </div>
 
@@ -41,14 +86,20 @@ const Home = ({ vocabulary, streak }) => {
         <div className="word-of-day card">
           <div className="wotd-header">
             <h2>Word of the Day</h2>
-            <span className="band-badge">{wordOfTheDay.bandLevel}</span>
+            <span className="wotd-date">
+              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </span>
           </div>
           <div className="wotd-content">
-            <div className="word-title">
-              <h3>{wordOfTheDay.word}</h3>
-              <span className="pronunciation">{wordOfTheDay.pronunciation}</span>
+            <div className="word-title-row">
+              <div className="word-title">
+                <h3>{wordOfTheDay.word}</h3>
+                <div className="word-meta">
+                  <span className="pronunciation">{wordOfTheDay.pronunciation}</span>
+                  <span className="part-of-speech">{wordOfTheDay.partOfSpeech || 'adjective'}</span>
+                </div>
+              </div>
             </div>
-            <p className="part-of-speech">{wordOfTheDay.partOfSpeech}</p>
             <p className="definition">{wordOfTheDay.definition}</p>
             <p className="example">"{wordOfTheDay.example}"</p>
           </div>
@@ -56,32 +107,65 @@ const Home = ({ vocabulary, streak }) => {
       )}
 
       <div className="quick-actions">
-        <div className="action-card card">
-          <h3>📚 Browse</h3>
-          <p>Explore {vocabulary.length} words</p>
+        <div className="action-card" onClick={() => onNavigate && onNavigate('study')}>
+          <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            <polyline points="2 17 12 22 22 17"/>
+            <polyline points="2 12 12 17 22 12"/>
+          </svg>
+          <div className="action-card-content">
+            <h3>Start Flashcards</h3>
+            <p>Review vocabulary with spaced repetition</p>
+          </div>
+          <svg className="arrow-icon" viewBox="0 0 24 24">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </div>
-        <div className="action-card card">
-          <h3>🎯 Study</h3>
-          <p>Review with flashcards</p>
+        <div className="action-card" onClick={() => onNavigate && onNavigate('quiz')}>
+          <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+          <div className="action-card-content">
+            <h3>Take Quiz</h3>
+            <p>Test your knowledge with timed quizzes</p>
+          </div>
+          <svg className="arrow-icon" viewBox="0 0 24 24">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </div>
-        <div className="action-card card">
-          <h3>✏️ Quiz</h3>
-          <p>Test your knowledge</p>
+        <div className="action-card" onClick={() => onNavigate && onNavigate('browse')}>
+          <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          <div className="action-card-content">
+            <h3>Browse Words</h3>
+            <p>Explore the full IELTS word collection</p>
+          </div>
+          <svg className="arrow-icon" viewBox="0 0 24 24">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </div>
       </div>
 
       <div className="recent-activity">
         <h2>Recent Activity</h2>
         <div className="activity-list card">
-          {getRecentActivity().map(word => (
-            <div key={word.id} className="activity-item">
-              <div className="activity-word">
-                <span className="word-name">{word.word}</span>
-                <span className={`status-badge ${word.status}`}>
-                  {word.status}
-                </span>
+          {getRecentActivity().map((word, index, array) => (
+            <div key={word.id}>
+              <div className="activity-item">
+                <div className="activity-word">
+                  <div className={`activity-indicator ${word.status}`}></div>
+                  <div className="activity-word-info">
+                    <span className="word-name">{word.word}</span>
+                    <span className="word-definition">{word.definition}</span>
+                  </div>
+                </div>
+                <span className="time-ago">{word.timeAgo}</span>
               </div>
-              <span className="review-count">{word.reviewCount} reviews</span>
+              {index < array.length - 1 && <div className="activity-divider"></div>}
             </div>
           ))}
         </div>

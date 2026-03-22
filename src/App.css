@@ -5,12 +5,51 @@
   background: var(--bg-primary);
 }
 
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
 .main-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;
   padding-bottom: 90px;
+}
+
+.app-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+  background: var(--bg-surface);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent-red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app-loading p {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 @media (min-width: 769px) {
