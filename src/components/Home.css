@@ -1,0 +1,236 @@
+.home {
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  max-width: 1200px;
+}
+
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.greeting {
+  font-family: var(--font-heading);
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+}
+
+.subgreeting {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-red);
+}
+
+.streak-badge svg {
+  stroke: none;
+  fill: var(--accent-red);
+}
+
+.word-of-day {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.wotd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wotd-header h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.band-badge {
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.wotd-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.word-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.word-title h3 {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pronunciation {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.part-of-speech {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.definition {
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.example {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding-left: 16px;
+  border-left: 2px solid var(--border);
+}
+
+.quick-actions {
+  display: flex;
+  gap: 24px;
+}
+
+.action-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+}
+
+.action-card h3 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.action-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.recent-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.recent-activity h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-word {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.word-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.status-badge {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  border-radius: 2px;
+}
+
+.status-badge.mastered {
+  background: #22C55E20;
+  color: #16A34A;
+}
+
+.status-badge.learning {
+  background: #3B82F620;
+  color: #2563EB;
+}
+
+.status-badge.struggling {
+  background: #EF444420;
+  color: #DC2626;
+}
+
+.review-count {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .home {
+    padding: 24px 20px;
+    gap: 24px;
+  }
+
+  .greeting {
+    font-size: 28px;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+
+  .word-title h3 {
+    font-size: 24px;
+  }
+}
