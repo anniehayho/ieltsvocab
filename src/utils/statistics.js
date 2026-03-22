@@ -83,8 +83,10 @@ export const getTotalStudyTime = (timeframe = 'week') => {
     }
   });
 
-  const hours = totalSeconds / 3600;
-  return hours.toFixed(1);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+  return { hours, minutes, totalSeconds };
 };
 
 // Get average study time per day

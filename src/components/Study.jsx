@@ -6,8 +6,10 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [studyWords, setStudyWords] = useState([]);
   const [studied, setStudied] = useState(0);
+  const [studyTime, setStudyTime] = useState(0);
   const startTimeRef = useRef(Date.now());
   const studiedWordsRef = useRef(new Set());
+  const lastSaveTimeRef = useRef(Date.now());
 
   useEffect(() => {
     // Initialize study session ONLY on mount
@@ -17,16 +19,38 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
       setStudied(0);
       setCurrentIndex(0);
       startTimeRef.current = Date.now();
+      lastSaveTimeRef.current = Date.now();
       studiedWordsRef.current = new Set();
     }
   }, [vocabulary, studyWords.length]);
 
   useEffect(() => {
+    // Update study time display every second
+    const timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      setStudyTime(elapsed);
+    }, 1000);
+
+    // Periodically save study time every 30 seconds
+    const saveInterval = setInterval(() => {
+      const duration = Math.floor((Date.now() - lastSaveTimeRef.current) / 1000);
+      const wordsStudied = studiedWordsRef.current.size;
+
+      if (duration > 0) {
+        // Save incremental time since last save
+        saveStudySession(wordsStudied, duration);
+        lastSaveTimeRef.current = Date.now();
+      }
+    }, 30000); // Save every 30 seconds
+
     // Save study session when component unmounts
     return () => {
-      const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      clearInterval(timerInterval);
+      clearInterval(saveInterval);
+
+      const duration = Math.floor((Date.now() - lastSaveTimeRef.current) / 1000);
       const wordsStudied = studiedWordsRef.current.size;
-      if (wordsStudied > 0 && duration > 0) {
+      if (duration > 0) {
         saveStudySession(wordsStudied, duration);
       }
     };
@@ -35,6 +59,12 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
   const currentWord = studyWords[currentIndex];
   const totalWords = studyWords.length;
   const progressPercentage = totalWords > 0 ? (studied / totalWords) * 100 : 0;
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
@@ -57,6 +87,8 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
       updateWordStatus(currentWord.id, 'mastered');
       incrementReviewCount(currentWord.id);
       studiedWordsRef.current.add(currentWord.id);
+      // Refresh vocabulary in parent to update Progress stats
+      refreshVocabulary();
     }
     // Move to next word
     if (currentIndex < totalWords - 1) {
@@ -70,6 +102,8 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
       updateWordStatus(currentWord.id, 'learning');
       incrementReviewCount(currentWord.id);
       studiedWordsRef.current.add(currentWord.id);
+      // Refresh vocabulary in parent to update Progress stats
+      refreshVocabulary();
     }
     // Move to next word
     if (currentIndex < totalWords - 1) {
@@ -114,6 +148,13 @@ const Study = ({ vocabulary, refreshVocabulary }) => {
           </p>
         </div>
         <div className="header-right">
+          <div className="timer-badge">
+            <svg className="icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span>{formatTime(studyTime)}</span>
+          </div>
           <span className="progress-label">
             {studied} / {totalWords} words
           </span>

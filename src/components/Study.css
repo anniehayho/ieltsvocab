@@ -36,7 +36,30 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+}
+
+.timer-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+}
+
+.timer-badge svg {
+  stroke: var(--text-secondary);
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke-width: 2;
+}
+
+.timer-badge span {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .progress-label {

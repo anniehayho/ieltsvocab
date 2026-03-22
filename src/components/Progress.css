@@ -96,20 +96,23 @@
 .bottom-section {
   display: flex;
   gap: 24px;
-  height: 400px;
+  min-height: 420px;
 }
 
 .weekly-chart {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  padding: 32px;
 }
 
 .weekly-chart h2 {
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -117,9 +120,9 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex: 1;
-  padding-bottom: 24px;
+  padding: 8px 0 20px 0;
 }
 
 .bar-wrapper {
@@ -128,56 +131,68 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
   height: 100%;
+  min-height: 200px;
 }
 
 .bar {
   width: 100%;
+  max-width: 48px;
   background: var(--accent-red);
-  transition: height 0.3s ease;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.4s ease;
+  min-height: 4px;
 }
 
 .bar.empty {
-  background: var(--border);
+  background: var(--bg-surface);
+  min-height: 4px;
 }
 
 .bar-label {
   font-family: var(--font-body);
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .mastery-panel {
-  width: 360px;
+  width: 420px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   flex-shrink: 0;
+  padding: 32px;
 }
 
 .mastery-panel h2,
 .mastery-panel h3 {
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .mastery-panel h3 {
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .mastery-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .mastery-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .mastery-row {
@@ -188,14 +203,15 @@
 
 .mastery-label {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-primary);
 }
 
 .mastery-value {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .mastery-value.green {
@@ -216,9 +232,9 @@
 
 .mastery-bar-bg {
   width: 100%;
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
+  height: 8px;
+  background: var(--bg-surface);
+  border-radius: 4px;
   overflow: hidden;
   position: relative;
 }
@@ -228,8 +244,8 @@
   top: 0;
   left: 0;
   height: 100%;
-  border-radius: 3px;
-  transition: width 0.3s ease;
+  border-radius: 4px;
+  transition: width 0.4s ease;
 }
 
 .mastery-bar-fill.green {
@@ -257,18 +273,24 @@
 .recent-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .recent-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg-surface);
+}
+
+.recent-item:last-child {
+  border-bottom: none;
 }
 
 .recent-word {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -276,9 +298,10 @@
 .recent-status {
   font-family: var(--font-body);
   font-size: 11px;
-  font-weight: 500;
-  padding: 3px 8px;
+  font-weight: 600;
+  padding: 4px 10px;
   text-transform: capitalize;
+  border-radius: 2px;
 }
 
 .recent-status.mastered {

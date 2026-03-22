@@ -24,7 +24,7 @@ const Progress = ({ vocabulary }) => {
   const [weeklyData, setWeeklyData] = useState([]);
   const [userStats, setUserStats] = useState(null);
   const [quizAccuracy, setQuizAccuracy] = useState(0);
-  const [studyTime, setStudyTime] = useState('0.0');
+  const [studyTime, setStudyTime] = useState({ hours: 0, minutes: 0 });
   const [avgStudyTime, setAvgStudyTime] = useState(0);
   const [wordsLearned, setWordsLearned] = useState(0);
   const [improvement, setImprovement] = useState(0);
@@ -119,7 +119,10 @@ const Progress = ({ vocabulary }) => {
 
         <div className="stat-card card">
           <span className="stat-label">Time Studied</span>
-          <span className="stat-value">{studyTime}h</span>
+          <span className="stat-value">
+            {studyTime.hours > 0 && `${studyTime.hours}h `}
+            {studyTime.minutes}m
+          </span>
           <span className="stat-change muted">avg {avgStudyTime}min/day</span>
         </div>
       </div>

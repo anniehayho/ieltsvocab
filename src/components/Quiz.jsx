@@ -14,12 +14,15 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
   const timerIntervalRef = useRef(null);
 
   useEffect(() => {
-    startNewQuiz();
-    // Start timer
-    startTimeRef.current = Date.now();
-    timerIntervalRef.current = setInterval(() => {
-      setTimer(prev => prev + 1);
-    }, 1000);
+    // Only start new quiz if we don't have quiz words yet
+    if (quizWords.length === 0 && vocabulary.length >= 4) {
+      startNewQuiz();
+      // Start timer
+      startTimeRef.current = Date.now();
+      timerIntervalRef.current = setInterval(() => {
+        setTimer(prev => prev + 1);
+      }, 1000);
+    }
 
     return () => {
       if (timerIntervalRef.current) {
@@ -75,8 +78,10 @@ const Quiz = ({ vocabulary, refreshVocabulary }) => {
     }
 
     incrementReviewCount(currentWord.id);
-    // Don't refresh during quiz - only at the end
-    // refreshVocabulary();
+
+    // Refresh vocabulary in parent to update Progress stats
+    // This won't restart the quiz because quizWords is already set
+    refreshVocabulary();
 
     setAnswers([...answers, { isCorrect }]);
   };
