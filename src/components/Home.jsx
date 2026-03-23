@@ -37,18 +37,29 @@ const Home = ({ vocabulary, userStats, onNavigate }) => {
   // Memoize recent activity calculation
   const recentActivity = useMemo(() => {
     return vocabulary
-      .filter(word => word.lastReviewed)
+      .filter(word => {
+        // Filter out words with invalid or missing lastReviewed
+        if (!word.lastReviewed) return false;
+        const date = new Date(word.lastReviewed);
+        return !isNaN(date.getTime()); // Check if date is valid
+      })
       .sort((a, b) => new Date(b.lastReviewed) - new Date(a.lastReviewed))
       .slice(0, 3)
       .map(word => {
         const reviewedDate = new Date(word.lastReviewed);
         const now = new Date();
         const diffMs = now - reviewedDate;
+
+        // Validate diffMs is a valid number
+        if (isNaN(diffMs)) {
+          return { ...word, timeAgo: 'Recently' };
+        }
+
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
         let timeAgo;
-        if (diffDays > 1) {
+        if (diffDays >= 1) {
           if (diffDays === 1) timeAgo = 'Yesterday';
           else if (diffDays < 7) timeAgo = `${diffDays} days ago`;
           else timeAgo = `${Math.floor(diffDays / 7)} weeks ago`;
