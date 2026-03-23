@@ -1,0 +1,85 @@
+# Documentation files (not needed in production)
+*.md
+README.md
+DEPLOYMENT_*.md
+DEPLOY*.md
+FIREBASE_*.md
+USER_*.md
+PERFORMANCE_*.md
+IMPLEMENTATION_*.md
+PROGRESS_*.md
+CLEANUP_*.md
+DESIGN_*.md
+HOME_*.md
+QUIZ_*.md
+STUDY_*.md
+TIME_*.md
+WORD_*.md
+VOCABULARY_*.md
+PORT_*.md
+AUTH_*.md
+BACKEND_*.md
+GITHUB_*.md
+
+# Python scripts
+*.py
+generate_vocab.py
+
+# Firebase files (not needed for Vercel deploy)
+firebase.json
+firestore.rules
+.firebaserc
+
+# Test/debug pages (not needed in production)
+public/test-vocab.html
+public/test-isolation.html
+public/check-status.html
+public/clear-storage.html
+
+# Old/unused vocabulary files
+src/data/ieltsVocabulary.js
+src/data/ieltsVocabularyFull.js
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Node modules (Vercel installs these)
+node_modules/
+
+# Environment files (use Vercel's environment variables)
+.env
+.env.local
+.env.production
+.env.development
+
+# Build output (Vercel builds fresh)
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+.cache/
+.temp/
+.tmp/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Vercel files
+.vercel/

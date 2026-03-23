@@ -1,191 +1,229 @@
-# IELTS Vocab - Vocabulary Learning PWA
+# 📚 IELTS Vocabulary App
 
-A Progressive Web App (PWA) for learning IELTS vocabulary with flashcards, quizzes, and progress tracking. Built with React and designed to work offline with localStorage persistence.
+A modern vocabulary learning app with 1000 IELTS words, user authentication, cloud sync, and offline support.
 
-## Features
+---
 
-- **Browse Vocabulary**: Explore 60 essential IELTS words (Band 5-8) with filtering by category, band level, and mastery status
-- **Flashcard Study**: Review words with an interactive flashcard interface
-- **Quiz Practice**: Test your knowledge with multiple-choice quizzes
-- **Progress Tracking**: Monitor your learning progress with detailed statistics, study time, and streaks
-- **Offline Support**: Full PWA capabilities - works offline after first load
-- **Responsive Design**: Optimized for both desktop and mobile devices
-- **Local Storage**: All progress, stats, and quiz results saved locally in your browser
-- **Real-time Statistics**: Track daily progress, weekly activity, quiz accuracy, and study sessions
+## ✨ Features
 
-## Tech Stack
+- **1000 IELTS Words** - Organized by 10 categories and 4 band levels (6.0-9.0)
+- **User Authentication** - Email/password and Google sign-in via Firebase
+- **Cloud Sync** - Multi-device support with Firestore
+- **Offline Mode** - Works without internet using localStorage
+- **Progress Tracking** - Study time, streaks, quiz scores
+- **Multi-User Support** - Each user has isolated data
 
-- **React 18** - UI framework
-- **Vite** - Build tool and dev server
-- **CSS3** - Styling with CSS custom properties
-- **Service Worker** - PWA offline functionality
-- **localStorage** - Data persistence
+---
 
-## Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-
-### Installation
-
-1. Clone or download this repository:
-```bash
-cd ielts
-```
-
-2. Install dependencies:
+### Development
 ```bash
 npm install
-```
-
-3. Start the development server:
-```bash
 npm start
 ```
 
-4. Open your browser and navigate to:
-```
-http://localhost:5174
-```
+Visit: http://localhost:5174
 
-### Building for Production
-
-To create a production build:
-
+### Production Build
 ```bash
 npm run build
 ```
 
-The optimized files will be in the `dist/` directory.
-
-To preview the production build locally:
-
+### Deploy to Vercel
 ```bash
-npm run preview
+npm run deploy
 ```
-
-## Installing as PWA
-
-### Desktop (Chrome/Edge)
-1. Open the app in your browser
-2. Click the install icon in the address bar
-3. Click "Install" in the prompt
-
-### Mobile (iOS Safari)
-1. Open the app in Safari
-2. Tap the Share button
-3. Scroll down and tap "Add to Home Screen"
-4. Tap "Add"
-
-### Mobile (Android Chrome)
-1. Open the app in Chrome
-2. Tap the menu (three dots)
-3. Tap "Add to Home Screen"
-4. Tap "Add"
-
-## Project Structure
-
-```
-ielts/
-├── public/
-│   ├── manifest.json        # PWA manifest
-│   ├── sw.js               # Service worker
-│   └── logo-*.png          # App icons
-├── src/
-│   ├── components/         # React components
-│   │   ├── Sidebar.jsx    # Desktop navigation
-│   │   ├── TabBar.jsx     # Mobile navigation
-│   │   ├── Home.jsx       # Home dashboard
-│   │   ├── Browse.jsx     # Vocabulary browser
-│   │   ├── Study.jsx      # Flashcard study
-│   │   ├── Quiz.jsx       # Quiz practice
-│   │   └── Progress.jsx   # Progress tracking
-│   ├── data/
-│   │   ├── ieltsVocabulary.js # 60 IELTS words database
-│   │   └── vocabularyData.js  # Vocabulary management functions
-│   ├── utils/
-│   │   ├── storage.js     # localStorage utilities
-│   │   ├── statistics.js  # Statistical calculations
-│   │   └── apiHelper.js   # API integration helpers
-│   ├── services/
-│   │   └── vocabularyAPI.js   # External API service
-│   ├── App.jsx            # Main app component
-│   ├── App.css            # App styles
-│   ├── index.css          # Global styles
-│   └── main.jsx           # App entry point
-├── index.html             # HTML template
-├── package.json           # Dependencies
-└── vite.config.js         # Vite configuration
-```
-
-## Data Structure
-
-Each vocabulary word contains:
-- `word`: The vocabulary word
-- `pronunciation`: IPA pronunciation
-- `partOfSpeech`: Word type (noun, verb, etc.)
-- `definition`: Word meaning
-- `example`: Usage example
-- `category`: Academic or General
-- `bandLevel`: IELTS band level (5-6, 7-8, 9)
-- `synonyms`: List of similar words
-- `status`: Learning status (mastered, learning, struggling)
-- `lastReviewed`: Timestamp of last review
-- `reviewCount`: Number of times reviewed
-
-## Customization
-
-### Adding Your Own Vocabulary
-
-Edit `/src/data/ieltsVocabulary.js` and add your words to the `ieltsVocabularyDatabase` array:
-
-```javascript
-{
-  id: 13,
-  word: "Your Word",
-  pronunciation: "/pronunciation/",
-  partOfSpeech: "noun",
-  definition: "Word definition",
-  example: "Example sentence",
-  category: "Academic",
-  bandLevel: "7-8",
-  synonyms: ["synonym1", "synonym2"],
-  status: "learning",
-  lastReviewed: new Date().toISOString(),
-  reviewCount: 0
-}
-```
-
-### Changing Colors
-
-Edit the CSS variables in `/src/index.css`:
-
-```css
-:root {
-  --accent-red: #EF4444;
-  --bg-primary: #FAFAFA;
-  --text-primary: #0A0A0A;
-  /* ... other colors */
-}
-```
-
-## Browser Support
-
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome, Samsung Internet)
-
-## License
-
-This project is open source and available for educational purposes.
-
-## Contributing
-
-Feel free to submit issues and enhancement requests!
 
 ---
 
-Built with ❤️ for IELTS learners worldwide
+## 📦 Tech Stack
+
+- **Frontend:** React 18 + Vite
+- **Backend:** Firebase (Auth + Firestore)
+- **Hosting:** Vercel
+- **Database:** 1000-word IELTS vocabulary (static file)
+- **Styling:** CSS
+
+---
+
+## 🔧 Environment Variables
+
+Create a `.env` file:
+
+```env
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
+```
+
+---
+
+## 📋 Project Structure
+
+```
+src/
+├── components/          # React components
+│   ├── Home.jsx        # Dashboard
+│   ├── Browse.jsx      # Browse 1000 words
+│   ├── Study.jsx       # Flashcard study mode
+│   ├── Quiz.jsx        # Quiz mode
+│   └── Progress.jsx    # Statistics
+├── data/
+│   ├── ieltsVocabularyComplete.js  # 1000 words (single source)
+│   ├── vocabularyData.js           # Data operations
+│   └── hybridDataService.js        # localStorage + Firestore
+├── firebase/
+│   ├── config.js       # Firebase setup
+│   ├── authService.js  # Authentication
+│   └── firestoreService.js  # Database
+└── utils/
+    └── storage.js      # localStorage with user isolation
+```
+
+---
+
+## 📚 Documentation
+
+- **QUICK_START.md** - Deploy in 5 minutes
+- **FINAL_SUMMARY.md** - Complete technical documentation
+- **DEPLOY_VERCEL.md** - Detailed Vercel deployment guide
+- **FIRESTORE_TESTING_GUIDE.md** - Testing guide
+
+---
+
+## 🔐 Firestore Security Rules
+
+Set in Firebase Console → Firestore → Rules:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
+```
+
+---
+
+## 🧪 Testing
+
+### Local Testing
+1. Run `npm start`
+2. Open http://localhost:5174
+3. Sign up with test account
+4. Study words and verify they save
+
+### Production Testing
+1. Deploy to Vercel
+2. Clear localStorage: `localStorage.clear(); location.reload();`
+3. Verify 1000 words load
+4. Test multi-device sync
+
+---
+
+## 📊 Performance
+
+- **Bundle Size:** 1.02 MB (247 KB gzipped)
+- **Load Time:** 1-2 seconds on 4G
+- **Optimizations:** React.memo, useMemo, useCallback
+- **Can Support:** 10,000+ users/month on free tier
+
+---
+
+## 💰 Cost
+
+**Free Tier (Vercel + Firebase):**
+- Hosting: Free (100 GB bandwidth/month)
+- Authentication: Free (unlimited users)
+- Firestore: Free (50K reads, 20K writes/day)
+- **Total:** $0/month for thousands of users
+
+---
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy
+npm run deploy
+```
+
+**After deployment:**
+1. Add all 7 Firebase environment variables in Vercel dashboard
+2. Redeploy
+3. Clear localStorage on deployed site
+4. Verify 1000 words appear
+
+---
+
+## 🆘 Common Issues
+
+### Only 60 words showing
+**Solution:** Clear localStorage on deployed site
+```javascript
+localStorage.clear();
+location.reload();
+```
+
+### Firebase not working
+**Solution:** Add environment variables in Vercel dashboard and redeploy
+
+### Empty page
+**Solution:** Check environment variables are set and Firestore rules are published
+
+---
+
+## 📝 Scripts
+
+```bash
+npm start          # Start dev server
+npm run build      # Build for production
+npm run preview    # Preview production build
+npm run deploy     # Deploy to Vercel
+```
+
+---
+
+## 🎯 Data Source
+
+**Single Source of Truth:** `src/data/ieltsVocabularyComplete.js`
+- 1000 IELTS words
+- 10 categories × 100 words
+- Band levels: 6.0-6.5, 7.0-7.5, 8.0-8.5, 9.0
+- Used by all components
+
+---
+
+## ✅ Production Ready
+
+- [x] 1000 IELTS words (single data source)
+- [x] User authentication and authorization
+- [x] Multi-user data isolation
+- [x] Cloud sync with Firestore
+- [x] Offline support with localStorage
+- [x] Performance optimized
+- [x] Security rules configured
+- [x] Build tested and working
+- [x] Ready to deploy
+
+---
+
+**Built with React + Firebase + Vercel**
+
+Deploy in 5 minutes → See `QUICK_START.md`

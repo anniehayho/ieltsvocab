@@ -13,7 +13,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from './config';
-import { ieltsVocabularyDatabase } from '../data/ieltsVocabulary';
+import ieltsVocabularyDatabase from '../data/ieltsVocabularyComplete';
 
 // Initialize user data in Firestore
 export const initializeUserData = async (userId) => {

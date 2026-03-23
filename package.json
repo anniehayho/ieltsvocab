@@ -11,7 +11,8 @@
   "scripts": {
     "start": "npx vite",
     "build": "npx vite build",
-    "preview": "npx vite preview"
+    "preview": "npx vite preview",
+    "deploy": "vercel --prod"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
