@@ -1,6 +1,6 @@
-// localStorage utility functions
+// localStorage utility functions with user-specific data isolation
 
-const STORAGE_KEYS = {
+const BASE_KEYS = {
   VOCABULARY: 'ielts_vocabulary',
   USER_STATS: 'ielts_user_stats',
   STUDY_SESSIONS: 'ielts_study_sessions',
@@ -9,44 +9,89 @@ const STORAGE_KEYS = {
   SETTINGS: 'ielts_settings'
 };
 
-// Generic localStorage helpers
-export const saveToStorage = (key, data) => {
+const SYSTEM_KEYS = {
+  CURRENT_USER: 'ielts_current_user',
+  GUEST_MODE: 'ielts_guest_mode'
+};
+
+// Get current user ID (returns 'guest' if not authenticated)
+const getCurrentUserId = () => {
+  const currentUser = localStorage.getItem(SYSTEM_KEYS.CURRENT_USER);
+  return currentUser || 'guest';
+};
+
+// Get user-specific storage key
+const getUserKey = (baseKey) => {
+  const userId = getCurrentUserId();
+  return `${baseKey}_${userId}`;
+};
+
+// Set current user (call this when user logs in/out)
+export const setCurrentUser = (userId) => {
+  if (userId) {
+    localStorage.setItem(SYSTEM_KEYS.CURRENT_USER, userId);
+    localStorage.removeItem(SYSTEM_KEYS.GUEST_MODE);
+  } else {
+    localStorage.removeItem(SYSTEM_KEYS.CURRENT_USER);
+    localStorage.setItem(SYSTEM_KEYS.GUEST_MODE, 'true');
+  }
+};
+
+// Get current user ID for external use
+export const getCurrentStorageUser = () => {
+  return getCurrentUserId();
+};
+
+// Clear current user's data (for logout)
+export const clearCurrentUserData = () => {
+  const userId = getCurrentUserId();
+  Object.values(BASE_KEYS).forEach(baseKey => {
+    const key = `${baseKey}_${userId}`;
+    localStorage.removeItem(key);
+  });
+};
+
+// Generic localStorage helpers (user-specific)
+export const saveToStorage = (baseKey, data) => {
   try {
-    localStorage.setItem(key, JSON.stringify(data));
+    const userKey = getUserKey(baseKey);
+    localStorage.setItem(userKey, JSON.stringify(data));
     return true;
   } catch (error) {
-    console.error(`Error saving ${key} to localStorage:`, error);
+    console.error(`Error saving ${baseKey} to localStorage:`, error);
     return false;
   }
 };
 
-export const loadFromStorage = (key, defaultValue = null) => {
+export const loadFromStorage = (baseKey, defaultValue = null) => {
   try {
-    const item = localStorage.getItem(key);
+    const userKey = getUserKey(baseKey);
+    const item = localStorage.getItem(userKey);
     return item ? JSON.parse(item) : defaultValue;
   } catch (error) {
-    console.error(`Error loading ${key} from localStorage:`, error);
+    console.error(`Error loading ${baseKey} from localStorage:`, error);
     return defaultValue;
   }
 };
 
-export const removeFromStorage = (key) => {
+export const removeFromStorage = (baseKey) => {
   try {
-    localStorage.removeItem(key);
+    const userKey = getUserKey(baseKey);
+    localStorage.removeItem(userKey);
     return true;
   } catch (error) {
-    console.error(`Error removing ${key} from localStorage:`, error);
+    console.error(`Error removing ${baseKey} from localStorage:`, error);
     return false;
   }
 };
 
 // Vocabulary operations
 export const saveVocabulary = (vocabulary) => {
-  return saveToStorage(STORAGE_KEYS.VOCABULARY, vocabulary);
+  return saveToStorage(BASE_KEYS.VOCABULARY, vocabulary);
 };
 
 export const loadVocabulary = () => {
-  return loadFromStorage(STORAGE_KEYS.VOCABULARY, []);
+  return loadFromStorage(BASE_KEYS.VOCABULARY, []);
 };
 
 export const updateWord = (wordId, updates) => {
@@ -77,7 +122,7 @@ export const incrementWordReview = (wordId) => {
 
 // User stats operations
 export const saveUserStats = (stats) => {
-  return saveToStorage(STORAGE_KEYS.USER_STATS, stats);
+  return saveToStorage(BASE_KEYS.USER_STATS, stats);
 };
 
 export const loadUserStats = () => {
@@ -86,12 +131,12 @@ export const loadUserStats = () => {
     totalReviews: 0,
     totalQuizzesTaken: 0,
     totalStudyTime: 0, // in seconds
-    currentStreak: 7,
-    longestStreak: 7,
+    currentStreak: 0,
+    longestStreak: 0,
     lastStudyDate: new Date().toISOString(),
     startDate: new Date().toISOString()
   };
-  return loadFromStorage(STORAGE_KEYS.USER_STATS, defaultStats);
+  return loadFromStorage(BASE_KEYS.USER_STATS, defaultStats);
 };
 
 export const updateUserStats = (updates) => {
@@ -103,7 +148,7 @@ export const updateUserStats = (updates) => {
 
 // Study session tracking
 export const saveStudySession = (session) => {
-  const sessions = loadFromStorage(STORAGE_KEYS.STUDY_SESSIONS, []);
+  const sessions = loadFromStorage(BASE_KEYS.STUDY_SESSIONS, []);
   const newSession = {
     id: Date.now(),
     date: new Date().toISOString(),
@@ -117,17 +162,17 @@ export const saveStudySession = (session) => {
   const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
   const recentSessions = sessions.filter(s => new Date(s.date).getTime() > thirtyDaysAgo);
 
-  saveToStorage(STORAGE_KEYS.STUDY_SESSIONS, recentSessions);
+  saveToStorage(BASE_KEYS.STUDY_SESSIONS, recentSessions);
   return recentSessions;
 };
 
 export const loadStudySessions = () => {
-  return loadFromStorage(STORAGE_KEYS.STUDY_SESSIONS, []);
+  return loadFromStorage(BASE_KEYS.STUDY_SESSIONS, []);
 };
 
 // Quiz results tracking
 export const saveQuizResult = (result) => {
-  const results = loadFromStorage(STORAGE_KEYS.QUIZ_RESULTS, []);
+  const results = loadFromStorage(BASE_KEYS.QUIZ_RESULTS, []);
   const newResult = {
     id: Date.now(),
     date: new Date().toISOString(),
@@ -142,18 +187,18 @@ export const saveQuizResult = (result) => {
   // Keep only last 50 results
   const recentResults = results.slice(-50);
 
-  saveToStorage(STORAGE_KEYS.QUIZ_RESULTS, recentResults);
+  saveToStorage(BASE_KEYS.QUIZ_RESULTS, recentResults);
   return recentResults;
 };
 
 export const loadQuizResults = () => {
-  return loadFromStorage(STORAGE_KEYS.QUIZ_RESULTS, []);
+  return loadFromStorage(BASE_KEYS.QUIZ_RESULTS, []);
 };
 
 // Daily progress tracking
 export const updateDailyProgress = () => {
   const today = new Date().toISOString().split('T')[0];
-  const progress = loadFromStorage(STORAGE_KEYS.DAILY_PROGRESS, {});
+  const progress = loadFromStorage(BASE_KEYS.DAILY_PROGRESS, {});
 
   if (!progress[today]) {
     progress[today] = {
@@ -176,13 +221,13 @@ export const updateDailyProgress = () => {
     }
   });
 
-  saveToStorage(STORAGE_KEYS.DAILY_PROGRESS, progress);
+  saveToStorage(BASE_KEYS.DAILY_PROGRESS, progress);
   return progress;
 };
 
 export const incrementDailyProgress = (field, amount = 1) => {
   const today = new Date().toISOString().split('T')[0];
-  const progress = loadFromStorage(STORAGE_KEYS.DAILY_PROGRESS, {});
+  const progress = loadFromStorage(BASE_KEYS.DAILY_PROGRESS, {});
 
   if (!progress[today]) {
     progress[today] = {
@@ -195,12 +240,12 @@ export const incrementDailyProgress = (field, amount = 1) => {
   }
 
   progress[today][field] = (progress[today][field] || 0) + amount;
-  saveToStorage(STORAGE_KEYS.DAILY_PROGRESS, progress);
+  saveToStorage(BASE_KEYS.DAILY_PROGRESS, progress);
   return progress;
 };
 
 export const loadDailyProgress = () => {
-  return loadFromStorage(STORAGE_KEYS.DAILY_PROGRESS, {});
+  return loadFromStorage(BASE_KEYS.DAILY_PROGRESS, {});
 };
 
 // Calculate streak
@@ -238,7 +283,7 @@ export const calculateStreak = () => {
 
 // Settings
 export const saveSettings = (settings) => {
-  return saveToStorage(STORAGE_KEYS.SETTINGS, settings);
+  return saveToStorage(BASE_KEYS.SETTINGS, settings);
 };
 
 export const loadSettings = () => {
@@ -248,15 +293,13 @@ export const loadSettings = () => {
     theme: 'light',
     soundEffects: true
   };
-  return loadFromStorage(STORAGE_KEYS.SETTINGS, defaultSettings);
+  return loadFromStorage(BASE_KEYS.SETTINGS, defaultSettings);
 };
 
 // Clear all data (for testing/reset)
 export const clearAllData = () => {
-  Object.values(STORAGE_KEYS).forEach(key => {
-    removeFromStorage(key);
-  });
+  clearCurrentUserData();
 };
 
 // Export storage keys
-export { STORAGE_KEYS };
+export const STORAGE_KEYS = BASE_KEYS;

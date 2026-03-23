@@ -10,7 +10,7 @@ import Quiz from './components/Quiz';
 import Progress from './components/Progress';
 import Auth from './components/Auth';
 import { initializeVocabulary } from './data/vocabularyData';
-import { loadUserStats, calculateStreak } from './utils/storage';
+import { loadUserStats, calculateStreak, setCurrentUser } from './utils/storage';
 import { onAuthChange, getCurrentUser, logOut } from './firebase/authService';
 import { initializeUserData, getVocabulary, getUserStats } from './data/hybridDataService';
 
@@ -29,11 +29,14 @@ function App() {
       setAuthLoading(false);
 
       if (authUser) {
-        // User is signed in, initialize Firebase data
+        // User is signed in, set user-specific localStorage namespace
+        setCurrentUser(authUser.uid);
+        // Initialize Firebase data
         await initializeUserData();
         await loadData();
       } else {
-        // User is signed out, use localStorage
+        // User is signed out, use guest localStorage namespace
+        setCurrentUser(null);
         const vocab = initializeVocabulary();
         setVocabulary(vocab);
 
@@ -63,6 +66,8 @@ function App() {
 
   const handleAuthSuccess = async (authUser) => {
     setUser(authUser);
+    // Set user-specific localStorage namespace
+    setCurrentUser(authUser.uid);
     await initializeUserData();
     await loadData();
   };
@@ -71,7 +76,9 @@ function App() {
     await logOut();
     setUser(null);
     setOfflineMode(false);
-    // Clear current data and reload from localStorage
+    // Switch to guest localStorage namespace
+    setCurrentUser(null);
+    // Clear current data and reload from guest localStorage
     const vocab = initializeVocabulary();
     setVocabulary(vocab);
 
@@ -83,6 +90,8 @@ function App() {
   const handleSkipLogin = () => {
     setOfflineMode(true);
     setAuthLoading(false);
+    // Use guest localStorage namespace
+    setCurrentUser(null);
     // Use localStorage only
     const vocab = initializeVocabulary();
     setVocabulary(vocab);

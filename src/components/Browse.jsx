@@ -1,25 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Browse.css';
+import { updateWordStatus, incrementReviewCount } from '../data/hybridDataService';
 
-const Browse = ({ vocabulary }) => {
+const Browse = ({ vocabulary, refreshVocabulary }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [wordSearchTerm, setWordSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const wordsPerPage = 8;
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  // Display 15 words per page
+  const wordsPerPage = 15;
+
+  // Text-to-speech function
+  const speakWord = (word) => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.8;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Open flashcard modal
+  const handleWordClick = (word) => {
+    setSelectedWord(word);
+    setIsFlipped(false);
+  };
+
+  // Close flashcard modal
+  const handleCloseModal = () => {
+    setSelectedWord(null);
+    setIsFlipped(false);
+  };
+
+  // Handle "I Knew It" in modal
+  const handleKnewIt = async () => {
+    if (!selectedWord) return;
+    await updateWordStatus(selectedWord.id, 'mastered');
+    await incrementReviewCount(selectedWord.id);
+    await refreshVocabulary();
+    handleCloseModal();
+  };
+
+  // Handle "Study Again" in modal
+  const handleStudyAgain = async () => {
+    if (!selectedWord) return;
+    await updateWordStatus(selectedWord.id, 'learning');
+    await incrementReviewCount(selectedWord.id);
+    await refreshVocabulary();
+    handleCloseModal();
+  };
 
   const filters = [
     { id: 'all', label: 'All' },
-    { id: 'Academic', label: 'Academic' },
-    { id: 'General', label: 'General Training' },
-    { id: '5-6', label: 'Band 5-6' },
-    { id: '7-8', label: 'Band 7-8' },
-    { id: '9', label: 'Band 9' },
-    { id: 'mastered', label: 'Mastered' },
-    { id: 'learning', label: 'Learning' },
-    { id: 'struggling', label: 'Struggling' }
+    { id: 'Education & Learning', label: 'Education' },
+    { id: 'Environment & Climate', label: 'Environment' },
+    { id: 'Technology & Digital Life', label: 'Technology' },
+    { id: 'Health & Lifestyle', label: 'Health' },
+    { id: 'Work & Business', label: 'Business' },
+    { id: '6.0', label: 'Band 6.0-6.5' },
+    { id: '7.0', label: 'Band 7.0-7.5' },
+    { id: '8.0', label: 'Band 8.0-8.5' },
+    { id: '9.0', label: 'Band 9.0' }
   ];
 
   // Calculate real album data from vocabulary
@@ -39,43 +88,135 @@ const Browse = ({ vocabulary }) => {
     return { totalWords, learnedPercentage };
   };
 
-  const academicData = getAlbumData('Academic');
-  const generalData = getAlbumData('General');
-  const band56Data = getAlbumData(null, '5-6');
-  const band78Data = getAlbumData(null, '7-8');
+  const educationData = getAlbumData('Education & Learning');
+  const environmentData = getAlbumData('Environment & Climate');
+  const technologyData = getAlbumData('Technology & Digital Life');
+  const healthData = getAlbumData('Health & Lifestyle');
+  const businessData = getAlbumData('Work & Business');
+  const societyData = getAlbumData('Society & Community');
+  const travelData = getAlbumData('Travel & Globalization');
+  const scienceData = getAlbumData('Science & Innovation');
+  const mediaData = getAlbumData('Media & Communication');
+  const urbanData = getAlbumData('Urban Development');
+  const band60Data = getAlbumData(null, '6.0');
+  const band65Data = getAlbumData(null, '6.5');
+  const band70Data = getAlbumData(null, '7.0');
+  const band75Data = getAlbumData(null, '7.5');
+  const band80Data = getAlbumData(null, '8.0');
+  const band85Data = getAlbumData(null, '8.5');
+  const band90Data = getAlbumData(null, '9.0');
 
   // Album/Category data with real statistics
   const albums = [
     {
       id: 1,
-      title: 'Academic Words',
-      totalWords: academicData.totalWords,
-      category: 'Academic',
-      learnedPercentage: academicData.learnedPercentage
+      title: 'Education & Learning',
+      totalWords: educationData.totalWords,
+      category: 'Education & Learning',
+      learnedPercentage: educationData.learnedPercentage
     },
     {
       id: 2,
-      title: 'General Training',
-      totalWords: generalData.totalWords,
-      category: 'General',
-      learnedPercentage: generalData.learnedPercentage
+      title: 'Environment & Climate',
+      totalWords: environmentData.totalWords,
+      category: 'Environment & Climate',
+      learnedPercentage: environmentData.learnedPercentage
     },
     {
       id: 3,
-      title: 'Band 5-6 Essentials',
-      totalWords: band56Data.totalWords,
-      bandLevel: '5-6',
-      learnedPercentage: band56Data.learnedPercentage
+      title: 'Technology & Digital Life',
+      totalWords: technologyData.totalWords,
+      category: 'Technology & Digital Life',
+      learnedPercentage: technologyData.learnedPercentage
     },
     {
       id: 4,
-      title: 'Band 7-8 Advanced',
-      totalWords: band78Data.totalWords,
-      bandLevel: '7-8',
-      learnedPercentage: band78Data.learnedPercentage
+      title: 'Health & Lifestyle',
+      totalWords: healthData.totalWords,
+      category: 'Health & Lifestyle',
+      learnedPercentage: healthData.learnedPercentage
     },
     {
       id: 5,
+      title: 'Work & Business',
+      totalWords: businessData.totalWords,
+      category: 'Work & Business',
+      learnedPercentage: businessData.learnedPercentage
+    },
+    {
+      id: 6,
+      title: 'Society & Community',
+      totalWords: societyData.totalWords,
+      category: 'Society & Community',
+      learnedPercentage: societyData.learnedPercentage
+    },
+    {
+      id: 7,
+      title: 'Travel & Globalization',
+      totalWords: travelData.totalWords,
+      category: 'Travel & Globalization',
+      learnedPercentage: travelData.learnedPercentage
+    },
+    {
+      id: 8,
+      title: 'Science & Innovation',
+      totalWords: scienceData.totalWords,
+      category: 'Science & Innovation',
+      learnedPercentage: scienceData.learnedPercentage
+    },
+    {
+      id: 9,
+      title: 'Media & Communication',
+      totalWords: mediaData.totalWords,
+      category: 'Media & Communication',
+      learnedPercentage: mediaData.learnedPercentage
+    },
+    {
+      id: 10,
+      title: 'Urban Development',
+      totalWords: urbanData.totalWords,
+      category: 'Urban Development',
+      learnedPercentage: urbanData.learnedPercentage
+    },
+    {
+      id: 11,
+      title: 'Band 6.0-6.5 (Basic)',
+      totalWords: band60Data.totalWords + band65Data.totalWords,
+      bandLevel: '6.0',
+      learnedPercentage: Math.round(
+        ((band60Data.totalWords * band60Data.learnedPercentage + band65Data.totalWords * band65Data.learnedPercentage) /
+        (band60Data.totalWords + band65Data.totalWords)) || 0
+      )
+    },
+    {
+      id: 12,
+      title: 'Band 7.0-7.5 (Intermediate)',
+      totalWords: band70Data.totalWords + band75Data.totalWords,
+      bandLevel: '7.0',
+      learnedPercentage: Math.round(
+        ((band70Data.totalWords * band70Data.learnedPercentage + band75Data.totalWords * band75Data.learnedPercentage) /
+        (band70Data.totalWords + band75Data.totalWords)) || 0
+      )
+    },
+    {
+      id: 13,
+      title: 'Band 8.0-8.5 (Advanced)',
+      totalWords: band80Data.totalWords + band85Data.totalWords,
+      bandLevel: '8.0',
+      learnedPercentage: Math.round(
+        ((band80Data.totalWords * band80Data.learnedPercentage + band85Data.totalWords * band85Data.learnedPercentage) /
+        (band80Data.totalWords + band85Data.totalWords)) || 0
+      )
+    },
+    {
+      id: 14,
+      title: 'Band 9.0 (Expert)',
+      totalWords: band90Data.totalWords,
+      bandLevel: '9.0',
+      learnedPercentage: band90Data.learnedPercentage
+    },
+    {
+      id: 15,
       title: 'All Words',
       totalWords: vocabulary.length,
       category: null,
@@ -91,11 +232,24 @@ const Browse = ({ vocabulary }) => {
 
     if (activeFilter === 'all') return matchesSearch;
 
-    if (['Academic', 'General'].includes(activeFilter)) {
+    // Category filters
+    if ([
+      'Education & Learning',
+      'Environment & Climate',
+      'Technology & Digital Life',
+      'Health & Lifestyle',
+      'Work & Business',
+      'Society & Community',
+      'Travel & Globalization',
+      'Science & Innovation',
+      'Media & Communication',
+      'Urban Development'
+    ].includes(activeFilter)) {
       return matchesSearch && album.category === activeFilter;
     }
 
-    if (['5-6', '7-8', '9'].includes(activeFilter)) {
+    // Band level filters
+    if (['6.0', '7.0', '8.0', '9.0'].includes(activeFilter)) {
       return matchesSearch && album.bandLevel === activeFilter;
     }
 
@@ -123,7 +277,16 @@ const Browse = ({ vocabulary }) => {
     if (album.category) {
       return vocabulary.filter(w => w.category === album.category);
     } else if (album.bandLevel) {
-      return vocabulary.filter(w => w.bandLevel === album.bandLevel);
+      // Handle band level ranges
+      if (album.bandLevel === '6.0') {
+        return vocabulary.filter(w => w.bandLevel === '6.0' || w.bandLevel === '6.5');
+      } else if (album.bandLevel === '7.0') {
+        return vocabulary.filter(w => w.bandLevel === '7.0' || w.bandLevel === '7.5');
+      } else if (album.bandLevel === '8.0') {
+        return vocabulary.filter(w => w.bandLevel === '8.0' || w.bandLevel === '8.5');
+      } else if (album.bandLevel === '9.0') {
+        return vocabulary.filter(w => w.bandLevel === '9.0');
+      }
     }
 
     // "All Words" album
@@ -162,11 +325,14 @@ const Browse = ({ vocabulary }) => {
 
     const handlePageChange = (page) => {
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const container = document.querySelector('.word-list-container');
+      if (container) {
+        container.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     };
 
     return (
-      <div className="browse">
+      <div className="browse browse-with-pagination">
         <div className="browse-header">
           <div className="album-header-row">
             <svg className="back-icon" viewBox="0 0 24 24" onClick={handleBackToAlbums} style={{cursor: 'pointer'}}>
@@ -208,39 +374,57 @@ const Browse = ({ vocabulary }) => {
           </div>
         </div>
 
-        <div className="word-table">
-          <div className="table-header">
-            <div className="th-word">Word</div>
-            <div className="th-type">Type</div>
-            <div className="th-definition">Definition</div>
-            <div className="th-status">Status</div>
-            <div className="th-accuracy">Accuracy</div>
-          </div>
-          {currentWords.map((word, index) => (
-            <div key={word.id} className={`table-row ${index % 2 === 1 ? 'alt' : ''}`}>
-              <div className="td-word">{word.word}</div>
-              <div className="td-type">{word.partOfSpeech.slice(0, 4)}</div>
-              <div className="td-definition">{word.definition}</div>
-              <div className="td-status">
-                <span className={`status-label ${word.status}`}>
-                  {word.status === 'mastered' ? 'Mastered' : word.status === 'learning' ? 'Learning' : 'Not Started'}
-                </span>
-              </div>
-              <div className="td-accuracy">
-                {word.status === 'mastered' ? '95%' : word.status === 'learning' ? '72%' : '0%'}
-              </div>
+        <div className="word-list-container">
+          <div className="word-table">
+            <div className="table-header">
+              <div className="th-word">Word</div>
+              <div className="th-type">Type</div>
+              <div className="th-definition">Definition</div>
+              <div className="th-status">Status</div>
+              <div className="th-accuracy">Accuracy</div>
             </div>
-          ))}
+            {currentWords.map((word, index) => (
+              <div key={word.id} className={`table-row ${index % 2 === 1 ? 'alt' : ''}`}>
+                <div className="td-word">
+                  <span className="word-text" onClick={() => handleWordClick(word)}>{word.word}</span>
+                  <button
+                    className="speaker-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      speakWord(word.word);
+                    }}
+                    title="Pronounce word"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="td-type">{word.partOfSpeech.slice(0, 4)}</div>
+                <div className="td-definition">{word.definition}</div>
+                <div className="td-status">
+                  <span className={`status-label ${word.status}`}>
+                    {word.status === 'mastered' ? 'Mastered' : word.status === 'learning' ? 'Learning' : 'Not Started'}
+                  </span>
+                </div>
+                <div className="td-accuracy">
+                  {word.status === 'mastered' ? '95%' : word.status === 'learning' ? '72%' : '0%'}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredByStatus.length === 0 && (
+            <div className="empty-state">
+              <p>No words found matching your search.</p>
+            </div>
+          )}
         </div>
 
-        {filteredByStatus.length === 0 && (
-          <div className="empty-state">
-            <p>No words found matching your search.</p>
-          </div>
-        )}
-
         {filteredByStatus.length > 0 && totalPages > 1 && (
-          <div className="pagination">
+          <div className="pagination-fixed">
             <button
               className="pagination-btn"
               onClick={() => handlePageChange(currentPage - 1)}
@@ -280,6 +464,76 @@ const Browse = ({ vocabulary }) => {
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </button>
+          </div>
+        )}
+
+        {/* Flashcard Modal */}
+        {selectedWord && (
+          <div className="modal-overlay" onClick={handleCloseModal}>
+            <div className="flashcard-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={handleCloseModal}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+
+              <div className={`flashcard ${isFlipped ? 'flipped' : ''}`} onClick={() => setIsFlipped(!isFlipped)}>
+                <div className="flashcard-front">
+                  <div className="card-header">
+                    <span className="band-label">Band {selectedWord.bandLevel}</span>
+                    <span className="category-label">{selectedWord.category}</span>
+                  </div>
+                  <h2 className="card-word">{selectedWord.word}</h2>
+                  <p className="card-pronunciation">{selectedWord.pronunciation}</p>
+                  <button
+                    className="speaker-btn-large"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      speakWord(selectedWord.word);
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    </svg>
+                  </button>
+                  <p className="tap-hint">Tap to see definition</p>
+                </div>
+
+                <div className="flashcard-back">
+                  <div className="card-header">
+                    <span className="part-of-speech">{selectedWord.partOfSpeech}</span>
+                  </div>
+                  <h3 className="card-word-small">{selectedWord.word}</h3>
+                  <p className="card-definition">{selectedWord.definition}</p>
+                  {selectedWord.exampleSentence && (
+                    <div className="card-example">
+                      <p className="example-label">Example:</p>
+                      <p className="example-text">"{selectedWord.exampleSentence}"</p>
+                    </div>
+                  )}
+                  <p className="tap-hint">Tap to flip back</p>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button className="btn-secondary" onClick={handleStudyAgain}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                  </svg>
+                  Study Again
+                </button>
+                <button className="btn-primary" onClick={handleKnewIt}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  I Knew It
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

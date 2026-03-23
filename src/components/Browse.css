@@ -5,10 +5,30 @@
   gap: 32px;
 }
 
+.browse-with-pagination {
+  height: calc(100vh - 80px);
+  padding-bottom: 0;
+  gap: 0;
+}
+
 .browse-header {
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+.browse-with-pagination .browse-header {
+  padding: 40px 48px 24px 48px;
+  flex-shrink: 0;
+}
+
+/* Scrollable word list container */
+.word-list-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 48px 20px 48px;
+  margin-bottom: 0;
 }
 
 .header-title {
@@ -327,6 +347,22 @@
   padding: 20px 0;
 }
 
+/* Fixed Pagination at Bottom */
+.pagination-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 280px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 48px;
+  background: white;
+  border-top: 1px solid var(--border);
+  z-index: 100;
+}
+
 .pagination-btn {
   display: flex;
   align-items: center;
@@ -400,6 +436,322 @@
   color: var(--text-secondary);
 }
 
+/* Word with speaker button */
+.td-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.word-text {
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.word-text:hover {
+  color: var(--accent-red);
+}
+
+.speaker-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.speaker-btn:hover {
+  color: var(--accent-red);
+}
+
+.speaker-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Flashcard Modal */
+.flashcard-modal {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  padding: 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+.modal-close svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+/* Flashcard */
+.flashcard {
+  width: 100%;
+  height: 350px;
+  position: relative;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px;
+  background: linear-gradient(135deg, #FEE2E2 0%, #FEF3C7 100%);
+  backface-visibility: hidden;
+  transition: transform 0.6s;
+}
+
+.flashcard-front {
+  transform: rotateY(0deg);
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, #DBEAFE 0%, #E0E7FF 100%);
+}
+
+.flashcard.flipped .flashcard-front {
+  transform: rotateY(-180deg);
+}
+
+.flashcard.flipped .flashcard-back {
+  transform: rotateY(0deg);
+}
+
+.card-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.band-label,
+.category-label,
+.part-of-speech {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.card-word {
+  font-family: var(--font-heading);
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.card-word-small {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.card-pronunciation {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+  text-align: center;
+}
+
+.speaker-btn-large {
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-red);
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.speaker-btn-large:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.speaker-btn-large svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+
+.card-definition {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.card-example {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  width: 100%;
+}
+
+.example-label {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.example-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+  font-style: italic;
+}
+
+.tap-hint {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  margin-top: auto;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.modal-actions button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border: none;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-actions .btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.modal-actions .btn-secondary:hover {
+  background: var(--border);
+}
+
+.modal-actions .btn-primary {
+  background: var(--accent-red);
+  color: white;
+}
+
+.modal-actions .btn-primary:hover {
+  background: var(--accent-red-dark);
+}
+
+.modal-actions button svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
 @media (max-width: 1024px) {
   .album-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -410,6 +762,25 @@
   .browse {
     padding: 24px 20px;
     gap: 24px;
+  }
+
+  .browse-with-pagination {
+    height: 100vh;
+  }
+
+  .browse-with-pagination .browse-header {
+    padding: 24px 20px 16px 20px;
+  }
+
+  .word-list-container {
+    padding: 0 20px 20px 20px;
+    margin-bottom: 175px;
+  }
+
+  .pagination-fixed {
+    left: 0;
+    bottom: 95px;
+    padding: 16px 20px;
   }
 
   .header-title {
@@ -454,5 +825,31 @@
   .table-header,
   .table-row {
     min-width: 700px;
+  }
+
+  /* Mobile modal adjustments */
+  .flashcard-modal {
+    padding: 24px;
+    max-width: 100%;
+  }
+
+  .flashcard {
+    height: 300px;
+  }
+
+  .card-word {
+    font-size: 36px;
+  }
+
+  .card-word-small {
+    font-size: 24px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
   }
 }
