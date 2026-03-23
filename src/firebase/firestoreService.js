@@ -5,6 +5,7 @@ import {
   getDocs,
   setDoc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -16,10 +17,24 @@ import { db } from './config';
 import ieltsVocabularyDatabase from '../data/ieltsVocabularyComplete';
 
 // Initialize user data in Firestore
-export const initializeUserData = async (userId) => {
+export const initializeUserData = async (userId, forceReinit = false) => {
   try {
     const userDocRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userDocRef);
+
+    // Check if we need to initialize vocabulary
+    let needsVocabInit = !userDoc.exists();
+
+    if (userDoc.exists() && forceReinit) {
+      // For existing users, check vocabulary count
+      const vocabularyRef = collection(db, 'users', userId, 'vocabulary');
+      const vocabSnapshot = await getDocs(vocabularyRef);
+
+      if (vocabSnapshot.size < 1000) {
+        console.warn(`User has ${vocabSnapshot.size} words, re-initializing to 1000...`);
+        needsVocabInit = true;
+      }
+    }
 
     if (!userDoc.exists()) {
       // Create new user document with initial data
@@ -32,11 +47,25 @@ export const initializeUserData = async (userId) => {
         currentStreak: 0,
         longestStreak: 0
       });
+    }
 
+    if (needsVocabInit) {
       // Initialize vocabulary collection for this user
       const vocabularyRef = collection(db, 'users', userId, 'vocabulary');
 
-      // Add all words from the database
+      // 🔧 FIX: Delete ALL existing vocabulary first to prevent duplicates
+      if (forceReinit) {
+        console.log('🗑️ Clearing old vocabulary data...');
+        const existingVocab = await getDocs(vocabularyRef);
+        const deletePromises = [];
+        existingVocab.forEach((docSnapshot) => {
+          deletePromises.push(deleteDoc(docSnapshot.ref));
+        });
+        await Promise.all(deletePromises);
+        console.log(`✅ Deleted ${existingVocab.size} old vocabulary entries`);
+      }
+
+      // Add all words from the database (1000 words)
       const batch = [];
       for (const word of ieltsVocabularyDatabase) {
         const wordDocRef = doc(vocabularyRef, word.id.toString());
@@ -50,6 +79,7 @@ export const initializeUserData = async (userId) => {
       }
 
       await Promise.all(batch);
+      console.log(`✅ Initialized ${ieltsVocabularyDatabase.length} words in Firestore`);
     }
 
     return { success: true, error: null };

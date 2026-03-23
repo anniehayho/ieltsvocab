@@ -38,7 +38,27 @@ export const getVocabulary = async () => {
     const userId = getUserId();
     const { vocabulary, error } = await firebaseService.getUserVocabulary(userId);
 
-    if (!error) {
+    if (!error && vocabulary) {
+      // 🔧 FIX: Check if vocabulary count is correct (should be exactly 1000 words)
+      if (vocabulary.length !== 1000) {
+        console.warn(`⚠️ Found ${vocabulary.length} words in Firestore, expected 1000. Re-initializing...`);
+
+        // Clear localStorage first to prevent stale data
+        localStorageService.saveVocabulary([]);
+
+        // Re-initialize Firestore with correct 1000-word database (force reinit)
+        await firebaseService.initializeUserData(userId, true);
+
+        // Fetch the updated vocabulary
+        const { vocabulary: updatedVocab, error: retryError } = await firebaseService.getUserVocabulary(userId);
+
+        if (!retryError && updatedVocab) {
+          console.log(`✅ Re-initialized with exactly ${updatedVocab.length} words`);
+          localStorageService.saveVocabulary(updatedVocab);
+          return updatedVocab;
+        }
+      }
+
       // Cache in localStorage
       localStorageService.saveVocabulary(vocabulary);
       return vocabulary;

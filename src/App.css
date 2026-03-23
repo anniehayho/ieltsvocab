@@ -57,3 +57,147 @@
     padding-bottom: 0;
   }
 }
+
+/* Session Timeout Warning Modal */
+.session-timeout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.session-timeout-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+.timeout-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.session-timeout-modal h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.session-timeout-modal p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.timeout-warning {
+  color: #ef4444 !important;
+  font-weight: 600;
+  margin-top: 12px;
+  margin-bottom: 24px;
+}
+
+.timeout-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.timeout-actions button {
+  flex: 1;
+  max-width: 180px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeout-actions .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.timeout-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.timeout-actions .btn-secondary {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.timeout-actions .btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .session-timeout-modal {
+    padding: 30px 20px;
+    max-width: 90%;
+  }
+
+  .timeout-icon {
+    font-size: 48px;
+  }
+
+  .session-timeout-modal h2 {
+    font-size: 24px;
+  }
+
+  .timeout-actions {
+    flex-direction: column;
+  }
+
+  .timeout-actions button {
+    max-width: 100%;
+  }
+}

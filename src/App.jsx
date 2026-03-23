@@ -13,6 +13,7 @@ import { initializeVocabulary } from './data/vocabularyData';
 import { loadUserStats, calculateStreak, setCurrentUser } from './utils/storage';
 import { onAuthChange, getCurrentUser, logOut } from './firebase/authService';
 import { initializeUserData, getVocabulary, getUserStats } from './data/hybridDataService';
+import { initSessionTimeout, cleanupSessionTimeout, resetSessionTimer } from './utils/sessionTimeout';
 
 function App() {
   const [currentView, setCurrentView] = useState('home');
@@ -21,6 +22,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [offlineMode, setOfflineMode] = useState(false);
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
 
   useEffect(() => {
     // Listen to auth state changes
@@ -48,6 +50,30 @@ function App() {
 
     return () => unsubscribe();
   }, []);
+
+  // Session timeout management - only for logged-in users
+  useEffect(() => {
+    if (user) {
+      // Initialize session timeout for logged-in users only
+      initSessionTimeout(
+        // Warning callback - 1 minute before timeout
+        () => {
+          setShowTimeoutWarning(true);
+        },
+        // Timeout callback - auto logout after 15 minutes
+        async () => {
+          console.log('Session timeout - logging out user');
+          await handleLogout();
+          alert('You have been logged out due to inactivity.');
+        }
+      );
+
+      return () => {
+        // Cleanup session timeout when user logs out or component unmounts
+        cleanupSessionTimeout();
+      };
+    }
+  }, [user]);
 
   const loadData = async () => {
     // Load vocabulary (from Firebase if authenticated, localStorage otherwise)
@@ -101,6 +127,18 @@ function App() {
     setUserStats({ ...stats, currentStreak });
   };
 
+  const handleStayLoggedIn = () => {
+    // User wants to continue - reset the timer
+    setShowTimeoutWarning(false);
+    resetSessionTimer();
+  };
+
+  const handleTimeoutLogout = async () => {
+    // User clicked "Logout Now" in warning dialog
+    setShowTimeoutWarning(false);
+    await handleLogout();
+  };
+
   const renderView = () => {
     switch (currentView) {
       case 'home':
@@ -149,6 +187,26 @@ function App() {
         </main>
       </div>
       <TabBar currentView={currentView} setCurrentView={setCurrentView} />
+
+      {/* Session Timeout Warning Modal */}
+      {showTimeoutWarning && (
+        <div className="modal-overlay session-timeout-overlay">
+          <div className="session-timeout-modal">
+            <div className="timeout-icon">⏰</div>
+            <h2>Still there?</h2>
+            <p>You've been inactive for 14 minutes.</p>
+            <p className="timeout-warning">You'll be logged out in 1 minute due to inactivity.</p>
+            <div className="timeout-actions">
+              <button className="btn-secondary" onClick={handleTimeoutLogout}>
+                Logout Now
+              </button>
+              <button className="btn-primary" onClick={handleStayLoggedIn}>
+                Stay Logged In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
